@@ -1,0 +1,54 @@
+- name: Prepare clients
+  hosts: dsb_mediamicroservices
+  become: yes
+
+  tasks:
+    - name: Copy register.sh file
+      copy:
+        src: "../scripts/register.sh"
+        dest: "/home/ubuntu/register.sh"
+        owner: ubuntu
+        group: ubuntu
+        mode: 0755
+
+    - name: Remove previous register.log if it exists
+      file:
+        path: /home/ubuntu/register.log
+        state: absent
+
+- name: Run clients
+  hosts: dsb_mediamicroservices
+  become: yes
+  vars:
+    start_unix: "{{ ((ansible_date_time.epoch | int) // 60 + 1) * 60 }}" # next full minute
+
+  tasks:
+    - name: Convert unix timestamp to datetime on remote host (because of time zones)
+      shell: date -d @{{ start_unix }} "+%H:%M %Y-%m-%d"
+      register: remote_datetime
+      changed_when: false
+
+    - name: Set start_at_datetime from remote conversion
+      set_fact:
+        start_at_datetime: "{{ remote_datetime.stdout }}"
+
+    - name: Schedule register.sh to run at {{ start_at_datetime }}
+      shell: |
+        echo '/home/ubuntu/register.sh > /home/ubuntu/register.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
+      args:
+        executable: /bin/bash
+
+    - name: Wait until register.log is created
+      wait_for:
+        path: /home/ubuntu/register.log
+        state: present
+        timeout: 90
+      register: wait_result
+      until: wait_result is succeeded
+      retries: 3
+
+    - name: Fetch register.log
+      fetch:
+        src: /home/ubuntu/register.log
+        dest: ../logs/register_{{ inventory_hostname }}.log
+        flat: yes

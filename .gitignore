@@ -1,0 +1,12 @@
+infra/terraform/.terraform/
+infra/terraform/.terraform.lock.hcl
+infra/terraform/terraform.tfstate
+infra/terraform/terraform.tfstate.backup
+infra/terraform/.terraform.tfstate.lock.info
+infra/ansible/inventory.init
+infra/keys/**
+!infra/keys/.keep
+infra/env/**
+!infra/env/.env.template
+infra/logs/**
+!infra/logs/.keep

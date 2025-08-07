@@ -90,7 +90,7 @@ cat /home/ubuntu/register.log
 Docker (adapt the following commands to use your Docker username and change the image name used for the MovieId service in the `docker-compose.yml` file):
 
 ```zsh
-cd mediaMicroservices
+cd DeathStarBench/mediaMicroservices
 docker build -t mafaldacf/media-microservices .
 docker push mafaldacf/media-microservices
 ```

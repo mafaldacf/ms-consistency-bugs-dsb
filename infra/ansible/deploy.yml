@@ -3,7 +3,7 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    local_app_base_dir: "../../mediaMicroservices"
+    local_app_base_dir: "../../DeathStarBench/mediaMicroservices"
     remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
 
   tasks:

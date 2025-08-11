@@ -1,0 +1,54 @@
+- name: Prepare clients
+  hosts: dsb_mediamicroservices
+  become: yes
+
+  tasks:
+    - name: Copy register_movies_partial.sh file
+      copy:
+        src: "../../scripts/register_movies_partial.sh"
+        dest: "/home/ubuntu/register_movies_partial.sh"
+        owner: ubuntu
+        group: ubuntu
+        mode: 0755
+
+    - name: Remove previous register_movies_partial.log if it exists
+      file:
+        path: /home/ubuntu/register_movies_partial.log
+        state: absent
+
+- name: Run clients
+  hosts: dsb_mediamicroservices
+  become: yes
+  vars:
+    start_unix: "{{ ((ansible_date_time.epoch | int) // 60 + 1) * 60 }}" # next full minute
+
+  tasks:
+    - name: Convert unix timestamp to datetime on remote host (because of time zones)
+      shell: date -d @{{ start_unix }} "+%H:%M %Y-%m-%d"
+      register: remote_datetime
+      changed_when: false
+
+    - name: Set start_at_datetime from remote conversion
+      set_fact:
+        start_at_datetime: "{{ remote_datetime.stdout }}"
+
+    - name: Schedule register_movies_partial.sh to run at {{ start_at_datetime }}
+      shell: |
+        echo '/home/ubuntu/register_movies_partial.sh > /home/ubuntu/register_movies_partial.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
+      args:
+        executable: /bin/bash
+
+    - name: Wait until register_movies_partial.log is created
+      wait_for:
+        path: /home/ubuntu/register_movies_partial.log
+        state: present
+        timeout: 90
+      register: wait_result
+      until: wait_result is succeeded
+      retries: 3
+
+    - name: Fetch register_movies_partial.log
+      fetch:
+        src: /home/ubuntu/register_movies_partial.log
+        dest: ../../logs/register_movies_partial_{{ inventory_hostname }}.log
+        flat: yes

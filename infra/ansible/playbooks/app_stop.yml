@@ -1,0 +1,12 @@
+---
+- name: Stop microservices with docker compose
+  hosts: dsb_mediamicroservices
+  become: yes
+  vars:
+    remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
+
+  tasks:
+    - name: Run docker compose down
+      shell: docker-compose down
+      args:
+        chdir: "{{ remote_app_base_dir }}"

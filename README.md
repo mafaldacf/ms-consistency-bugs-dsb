@@ -50,17 +50,38 @@ Configure and initialize app
 
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini deploy.yml
+ansible-playbook -i inventory.ini playbooks/app_deploy.yml
+ansible-playbook -i inventory.ini playbooks/app_start.yml
+ansible-playbook -i inventory.ini playbooks/app_clean.yml # when restarting or at the end
+ansible-playbook -i inventory.ini playbooks/client_register_users.yml
 ```
 
 ## Run Clients
 
-Schedule bash script to run clients requests
+Experiment 1:
 
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini run.yml
+ansible-playbook -i inventory.ini playbooks/client_register_movies_ids.yml
 ```
+
+Experiment 2:
+```zsh
+cd infra/ansible
+ansible-playbook -i inventory.ini playbooks/client_register_movies_partial.yml
+ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
+```
+
+Experiment 3:
+```zsh
+cd infra/ansible
+ansible-playbook -i inventory.ini playbooks/client_register_movies_complete.yml
+ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
+
+ansible-playbook -i inventory.ini playbooks/client_compose_review.yml
+ansible-playbook -i inventory.ini playbooks/client_read_page.yml
+```
+
 
 The playbook will gather the clients logs and save them into the `infra/logs/` directory.
 

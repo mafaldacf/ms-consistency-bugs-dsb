@@ -1,0 +1,34 @@
+- name: Prepare clients
+  hosts: dsb_mediamicroservices
+  become: yes
+
+  tasks:
+    - name: Copy compose_reviews.sh file
+      copy:
+        src: "../../scripts/compose_reviews.sh"
+        dest: "/home/ubuntu/compose_reviews.sh"
+        owner: ubuntu
+        group: ubuntu
+        mode: 0755
+
+    - name: Remove previous register.log if it exists
+      file:
+        path: /home/ubuntu/register.log
+        state: absent
+
+- name: Run clients
+  hosts: dsb_mediamicroservices
+  become: yes
+
+  tasks:
+    - name: Run compose_reviews.sh
+      shell: |
+        /home/ubuntu/compose_reviews.sh > /home/ubuntu/compose_reviews.log {{ inventory_hostname }} 2>&1
+      args:
+        executable: /bin/bash
+
+    - name: Fetch compose_reviews.log
+      fetch:
+        src: /home/ubuntu/compose_reviews.log
+        dest: ../../logs/compose_reviews_{{ inventory_hostname }}.log
+        flat: yes

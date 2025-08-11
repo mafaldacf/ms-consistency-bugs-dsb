@@ -3,7 +3,7 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    local_app_base_dir: "../../DeathStarBench/mediaMicroservices"
+    local_app_base_dir: "../../../DeathStarBench/mediaMicroservices"
     remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
 
   tasks:
@@ -77,14 +77,6 @@
         group: ubuntu
         mode: 0755
 
-    - name: Copy script
-      copy:
-        src: "../scripts/"
-        dest: "{{ remote_app_base_dir }}/scripts/"
-        owner: ubuntu
-        group: ubuntu
-        mode: 0755
-
 - name: Copy .env file to us instance
   hosts: dsb_us
   become: yes
@@ -94,7 +86,7 @@
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "../env/us.env"
+        src: "../../env/us.env"
         dest: "{{ remote_app_base_dir }}/.env"
         owner: ubuntu
         group: ubuntu
@@ -109,37 +101,8 @@
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "../env/ap.env"
+        src: "../../env/ap.env"
         dest: "{{ remote_app_base_dir }}/.env"
         owner: ubuntu
         group: ubuntu
         mode: 0755
-
-- name: Start microservices with docker compose
-  hosts: dsb_mediamicroservices
-  become: yes
-  vars:
-    remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
-    local_app_base_dir: "../../mediaMicroservices"
-
-  tasks:
-    - name: Copy docker compose file
-      copy:
-        src: "{{ local_app_base_dir }}/docker-compose.yml"
-        dest: "{{ remote_app_base_dir }}/docker-compose.yml"
-        owner: ubuntu
-        group: ubuntu
-        mode: 0755
-    
-    - name: Run docker compose pull
-      become: no
-      shell: docker-compose pull
-      args:
-        chdir: "{{ remote_app_base_dir }}"
-      become: true
-        
-    - name: Run docker compose up
-      become: no
-      shell: docker-compose up -d
-      args:
-        chdir: "{{ remote_app_base_dir }}"

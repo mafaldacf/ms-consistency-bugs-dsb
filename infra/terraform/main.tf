@@ -11,7 +11,7 @@ terraform {
 
 module "dynamodb_global_table" {
     source         = "./modules/dynamodb"
-    table_name     = "movie-id"
+    table_name     = "dsb-movie-id"
     primary_region = "us-east-1"
     replica_region = "ap-southeast-1"
 }

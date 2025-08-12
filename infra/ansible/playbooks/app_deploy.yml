@@ -3,106 +3,53 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    local_app_base_dir: "../../../DeathStarBench/mediaMicroservices"
-    remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
+    infra_folder_dir: "../.."
+    local_app_folder_dir: "../../../DeathStarBench/mediaMicroservices"
+    remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
-    - name: Install system packages
-      apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - software-properties-common
-          - chrony
-          - at
-        state: present
-        update_cache: yes
-
-    - name: Ensure chrony is enabled and running
-      service:
-        name: chrony
-        state: started
-        enabled: yes
-
-    - name: Force NTP time sync
-      shell: chronyc -a makestep
-      register: ntp_sync_result
-      changed_when: false
-
-    - name: Wait 5 seconds to allow time sync
-      wait_for:
-        timeout: 5
-
-    - name: Add Docker GPG key
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
-
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
-        state: present
-        filename: docker
-
-    - name: Install Docker and Docker Compose
-      apt:
-        name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose
-        state: latest
-        update_cache: yes
-
-    - name: Add ubuntu user to docker group
-      user:
-        name: ubuntu
-        groups: docker
-        append: yes
-
     - name: Copy nginx web server files for docker-compose
       copy:
-        src: "{{ local_app_base_dir }}/nginx-web-server/"
-        dest: "{{ remote_app_base_dir }}/nginx-web-server/"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ local_app_folder_dir }}/nginx-web-server/"
+        dest: "{{ remote_app_folder_dir }}/nginx-web-server/"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755
     
     - name: Copy gen lua files for docker-compose
       copy:
-        src: "{{ local_app_base_dir }}/gen-lua/"
-        dest: "{{ remote_app_base_dir }}/gen-lua/"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ local_app_folder_dir }}/gen-lua/"
+        dest: "{{ remote_app_folder_dir }}/gen-lua/"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755
 
 - name: Copy .env file to us instance
-  hosts: dsb_us
+  hosts: node_us
   become: yes
   vars:
-    remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
+    remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "../../env/us.env"
-        dest: "{{ remote_app_base_dir }}/.env"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ infra_folder_dir }}/env/us.env"
+        dest: "{{ remote_app_folder_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755
 
 - name: Copy .env file to ap instance
-  hosts: dsb_ap
+  hosts: node_ap
   become: yes
   vars:
-    remote_app_base_dir: "/home/ubuntu/dsb-mediamicroservices"
+    remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "../../env/ap.env"
-        dest: "{{ remote_app_base_dir }}/.env"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ infra_folder_dir }}/env/ap.env"
+        dest: "{{ remote_app_folder_dir }}/.env"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755

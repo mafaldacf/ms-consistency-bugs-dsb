@@ -1,0 +1,44 @@
+---
+- name: Test remote CouchDB HTTP API access
+  hosts: localhost
+  gather_facts: false
+  vars:
+    couchdb_node_01_port: 10010
+    couchdb_node_02_port: 10011
+  tasks:
+    - name: Test CouchDB node-ap connection
+      uri:
+        url: "http://{{ hostvars['node_us'].ansible_host }}:{{ couchdb_node_01_port }}/_up"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: node1_response
+      ignore_errors: true
+
+    - name: Test CouchDB node2 connection
+      uri:
+        url: "http://{{ hostvars['node_ap'].ansible_host }}:{{ couchdb_node_02_port }}/_up"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: node2_response
+      ignore_errors: true
+
+    - name: Show CouchDB API test results
+      debug:
+        msg: |
+          Node1 CouchDB response: {{ node1_response.content }}
+          Node2 CouchDB response: {{ node2_response.content }}
+
+    - name: Debug return codes
+      debug:
+        msg: |
+          node1_response.rc = {{ node1_response.rc | default('unknown') }}
+          node2_response.rc = {{ node2_response.rc | default('unknown') }}
+
+    - name: Fail if any CouchDB node API check failed
+      fail:
+        msg: "One or more CouchDB nodes are not reachable!"
+      when: >
+        node1_response.status != 200 or
+        node2_response.status != 200

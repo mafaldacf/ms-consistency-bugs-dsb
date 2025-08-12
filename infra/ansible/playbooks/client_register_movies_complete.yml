@@ -1,25 +1,28 @@
 - name: Prepare clients
   hosts: dsb_mediamicroservices
   become: yes
+  vars:
+    infra_folder_dir: "../.."
 
   tasks:
     - name: Copy register_movies_complete.sh file
       copy:
-        src: "../../scripts/register_movies_complete.sh"
-        dest: "/home/ubuntu/register_movies_complete.sh"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ infra_folder_dir }}/scripts/register_movies_complete.sh"
+        dest: "/home/{{ ansible_user }}/register_movies_complete.sh"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755
 
     - name: Remove previous register_movies_complete.log if it exists
       file:
-        path: /home/ubuntu/register_movies_complete.log
+        path: /home/{{ ansible_user }}/register_movies_complete.log
         state: absent
 
 - name: Run clients
   hosts: dsb_mediamicroservices
   become: yes
   vars:
+    infra_folder_dir: "../.."
     start_unix: "{{ ((ansible_date_time.epoch | int) // 60 + 1) * 60 }}" # next full minute
 
   tasks:
@@ -34,13 +37,13 @@
 
     - name: Schedule register_movies_complete.sh to run at {{ start_at_datetime }}
       shell: |
-        echo '/home/ubuntu/register_movies_complete.sh > /home/ubuntu/register_movies_complete.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
+        echo '/home/{{ ansible_user }}/register_movies_complete.sh > /home/{{ ansible_user }}/register_movies_complete.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
       args:
         executable: /bin/bash
 
     - name: Wait until register_movies_complete.log is created
       wait_for:
-        path: /home/ubuntu/register_movies_complete.log
+        path: /home/{{ ansible_user }}/register_movies_complete.log
         state: present
         timeout: 90
       register: wait_result
@@ -49,7 +52,7 @@
 
     - name: Fetch register_movies_complete.log
       fetch:
-        src: /home/ubuntu/register_movies_complete.log
-        dest: ../../logs/register_movies_complete_{{ inventory_hostname }}.log
+        src: /home/{{ ansible_user }}/register_movies_complete.log
+        dest: "{{ infra_folder_dir }}/logs/register_movies_complete_{{ inventory_hostname }}.log"
         flat: yes
 

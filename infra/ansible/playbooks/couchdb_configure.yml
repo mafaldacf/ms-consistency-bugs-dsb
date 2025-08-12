@@ -1,0 +1,44 @@
+---
+- name: Configure CouchDB cluster with async replication
+  hosts: manager
+  become: yes
+  vars:
+    infra_folder_dir: "../.."
+    ansible_folder_dir: ".."
+  
+  tasks:
+    - name: Ensure cluster directory exists
+      file:
+        path: /home/{{ ansible_user }}/couchdb-config
+        state: directory
+        mode: 0755
+
+    - name: Copy async script
+      copy:
+        src: "{{ ansible_folder_dir }}/config/couchdb/init-cluster-async.sh"
+        dest: /home/{{ ansible_user }}/couchdb-config/init-cluster-async.sh
+        mode: 0755
+    
+    - name: Copy .env file
+      copy:
+        src: "{{ ansible_folder_dir }}/config/couchdb/.env"
+        dest: /home/{{ ansible_user }}/couchdb-config/.env
+        mode: 0755
+
+    - name: Copy hosts file
+      copy:
+        src: "{{ infra_folder_dir }}/hosts/hosts"
+        dest: /home/{{ ansible_user }}/couchdb-config/hosts
+        mode: 0755
+
+    - name: Run CouchDB async replication setup script
+      shell: ./init-cluster-async.sh
+      args:
+        chdir: /home/{{ ansible_user }}/couchdb-config
+      register: replication_output
+      ignore_errors: true  # see output even on error
+
+    - name: Show replication script output
+      debug:
+        var: replication_output.stdout_lines
+

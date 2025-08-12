@@ -10,3 +10,5 @@ infra/env/**
 !infra/env/.env.template
 infra/logs/**
 !infra/logs/.keep
+infra/hosts/**
+!infra/hosts/hosts.template

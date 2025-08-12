@@ -1,34 +1,38 @@
 - name: Prepare clients
   hosts: dsb_mediamicroservices
   become: yes
+  vars:
+    infra_folder_dir: "../.."
 
   tasks:
     - name: Copy read_movie_info.sh file
       copy:
-        src: "../../scripts/read_movie_info.sh"
-        dest: "/home/ubuntu/read_movie_info.sh"
-        owner: ubuntu
-        group: ubuntu
+        src: "{{ infra_folder_dir }}/scripts/read_movie_info.sh"
+        dest: "/home/{{ ansible_user }}/read_movie_info.sh"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
         mode: 0755
 
     - name: Remove previous read_movie_info.log if it exists
       file:
-        path: /home/ubuntu/read_movie_info.log
+        path: /home/{{ ansible_user }}/read_movie_info.log
         state: absent
 
 - name: Run clients
   hosts: dsb_mediamicroservices
   become: yes
+  vars:
+    infra_folder_dir: "../.."
 
   tasks:
     - name: Run read_movie_info.sh
       shell: |
-        /home/ubuntu/read_movie_info.sh > /home/ubuntu/read_movie_info.log {{ inventory_hostname }} 2>&1
+        /home/{{ ansible_user }}/read_movie_info.sh > /home/{{ ansible_user }}/read_movie_info.log {{ inventory_hostname }} 2>&1
       args:
         executable: /bin/bash
 
     - name: Fetch read_movie_info.log
       fetch:
-        src: /home/ubuntu/read_movie_info.log
-        dest: ../../logs/read_movie_info_{{ inventory_hostname }}.log
+        src: /home/{{ ansible_user }}/read_movie_info.log
+        dest: "{{ infra_folder_dir }}/logs/read_movie_info_{{ inventory_hostname }}.log"
         flat: yes

@@ -1,3 +1,19 @@
+manager ansible_host=127.0.0.1 private_ip=127.0.0.1 ansible_ssh_private_key_file=../keys/key-manager.pem
+node_us ansible_host=127.0.0.1 private_ip=127.0.0.1 ansible_ssh_private_key_file=../keys/key-node-us.pem
+node_ap ansible_host=127.0.0.1 private_ip=127.0.0.1 ansible_ssh_private_key_file=../keys/key-node-ap.pem
+
+[swarm_nodes]
+manager
+node_us
+node_ap
+
+[swarm_workers]
+node_us
+node_ap
+
 [dsb_mediamicroservices]
-dsb_us ansible_host=127.0.0.1 ansible_user=ubuntu ansible_ssh_private_key_file=../keys/key-dsb-us.pem
-dsb_ap ansible_host=127.0.0.1 ansible_user=ubuntu ansible_ssh_private_key_file=../keys/key-dsb-ap.pem
+node_us
+node_ap
+
+[all:vars]
+ansible_user=ubuntu

@@ -50,9 +50,19 @@ Configure and initialize app
 
 ```zsh
 cd infra/ansible
+ansible-playbook -i inventory.ini playbooks/provision.yml
+
+ansible-playbook -i inventory.ini playbooks/docker_swarm_start.yml
+ansible-playbook -i inventory.ini playbooks/docker_swarm_stop.yml # when restarting or at the end
+
+ansible-playbook -i inventory.ini playbooks/couchdb_start.yml
+ansible-playbook -i inventory.ini playbooks/couchdb_configure.yml
+ansible-playbook -i inventory.ini playbooks/couchdb_test.yml
+
 ansible-playbook -i inventory.ini playbooks/app_deploy.yml
 ansible-playbook -i inventory.ini playbooks/app_start.yml
 ansible-playbook -i inventory.ini playbooks/app_clean.yml # when restarting or at the end
+
 ansible-playbook -i inventory.ini playbooks/client_register_users.yml
 ```
 
@@ -87,28 +97,36 @@ The playbook will gather the clients logs and save them into the `infra/logs/` d
 
 ## OPTIONAL: Run Clients Manually
 
-Connect to each client (IPs available at `infra/ansible/inventory.ini`)
+Connect to each client (IPs available at `infra/hosts/hosts` or `infra/ansible/inventory.ini`)
 ```zsh
-ssh -i infra/keys/key-dsb-us.pem ubuntu@<public_ip_us>
-ssh -i infra/keys/key-dsb-us.pem ubuntu@<public_ip_ap>
+ssh -i infra/keys/key-node-us.pem ubuntu@<public_ip_us>
+ssh -i infra/keys/key-node-us.pem ubuntu@<public_ip_ap>
 ```
 
 In each machine, schedule the script to run at a given time in the near future
 ```zsh
 cd infra/scripts
 date
-echo '/home/ubuntu/dsb-mediamicroservices/register.sh > /home/ubuntu/register.log 2>&1' | at 22:27
+echo '/home/ubuntu/dsb-mediamicroservices/client_register_movies_ids.sh > /home/ubuntu/client_register_movies_ids.log 2>&1' | at 22:27
 ```
 
 At the end, check the log files (writes in both clients will succeed, but dynamo will contain final converged values, which can be observed in the [AWS console](https://us-east-1.console.aws.amazon.com/dynamodbv2))
 
 ```zsh
-cat /home/ubuntu/register.log
+cat /home/ubuntu/client_register_movies_ids.log
 ```
 
 ## OPTIONAL: Build Image (only if some modification is done to the application)
 
-Docker (adapt the following commands to use your Docker username and change the image name used for the MovieId service in the `docker-compose.yml` file):
+CouchDB (if docker username is changed then change docker image name in `infra/config/couchdb/stack.yml` accordingly):
+
+```zsh
+cd infra/ansible/config/couchdb/docker
+docker build -t mafaldacf/couchdb:delayed .
+docker push mafaldacf/couchdb:delayed
+```
+
+DSB MediaMicroservices (if docker username is changed then change docker image name in `DeathStarBench/mediaMicroservices/docker-compose.yml` accordingly):
 
 ```zsh
 cd DeathStarBench/mediaMicroservices

@@ -1,0 +1,11 @@
+- name: Leave existing swarm on all nodes
+  hosts: swarm_nodes
+  become: yes
+  tasks:
+    - name: Leave swarm if part of one
+      shell: docker swarm leave --force || true
+      register: leave_output
+
+    - name: Show leave output (optional)
+      debug:
+        var: leave_output.stdout

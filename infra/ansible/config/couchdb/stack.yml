@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  couchdb_node_01:
+    restart: always
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+      COUCHDB_SECRET: ${COUCHDB_SECRET}
+      NODENAME: couchdb_node_01.${COMPOSE_PROJECT_NAME}
+      ERL_FLAGS: "-setcookie ${COUCHDB_COOKIE}"
+    image: mafaldacf/couchdb:delayed
+    networks:
+      network:
+        aliases:
+          - couchdb_node_01.${COMPOSE_PROJECT_NAME}
+    ports:
+      - "${PORT_BASE}0:5984"
+    volumes:
+      - "data-couchdb_node_01:/opt/couchdb/data"
+      - "cfg-couchdb_node_01:/opt/couchdb/etc/local.d"
+    cap_add:
+      - NET_ADMIN # in order to apply delay
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-us
+  couchdb_node_02:
+    restart: always
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+      COUCHDB_SECRET: ${COUCHDB_SECRET}
+      NODENAME: couchdb_node_02.${COMPOSE_PROJECT_NAME}
+      ERL_FLAGS: "-setcookie ${COUCHDB_COOKIE}"
+    image: mafaldacf/couchdb:delayed
+    networks:
+      network:
+        aliases:
+          - couchdb_node_02.${COMPOSE_PROJECT_NAME}
+    ports:
+      - "${PORT_BASE}1:5984"
+    volumes:
+      - "data-couchdb_node_02:/opt/couchdb/data"
+      - "cfg-couchdb_node_02:/opt/couchdb/etc/local.d"
+    cap_add:
+      - NET_ADMIN # in order to apply delay
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-ap
+
+networks:
+  network:
+
+volumes:
+  data-couchdb_node_01:
+  cfg-couchdb_node_01:
+  data-couchdb_node_02:
+  cfg-couchdb_node_02:

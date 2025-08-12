@@ -1,0 +1,47 @@
+---
+- name: Initialize Docker Swarm on Manager
+  hosts: manager
+  become: yes
+  tasks:
+    - name: Initialize Swarm
+      shell: docker swarm init --advertise-addr {{ ansible_host }}
+      register: swarm_init
+      changed_when: "'This node is already part of a swarm' not in swarm_init.stderr"
+      failed_when: "'Error' in swarm_init.stderr and 'already part of a swarm' not in swarm_init.stderr"
+
+    - name: Get worker join token
+      shell: docker swarm join-token worker -q
+      register: worker_token
+
+    - name: Share token with workers
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
+
+- name: Join Docker Swarm on Workers
+  hosts: swarm_workers
+  become: yes
+  tasks:
+    - name: Join swarm
+      shell: docker swarm join --token {{ hostvars['manager'].swarm_worker_token }} {{ hostvars['manager'].ansible_host }}:2377
+      register: join_result
+      changed_when: "'This node is already part of a swarm' not in join_result.stdout"
+      failed_when: "'Error' in join_result.stdout and 'already part of a swarm' not in join_result.stdout"
+
+    - name: Show join result (debug)
+      debug:
+        var: join_result.stdout
+
+- name: Label nodes in the Swarm
+  hosts: manager
+  become: yes
+  vars:
+    expected_swarm_nodes: 3
+
+  tasks:
+    - name: Wait until all 3 nodes are visible in the swarm
+      shell: docker node ls --format '{{ "{{.Hostname}}" }}' | wc -l
+      register: swarm_node_count
+      until: swarm_node_count.stdout | int == expected_swarm_nodes
+      retries: 10
+      delay: 5
+

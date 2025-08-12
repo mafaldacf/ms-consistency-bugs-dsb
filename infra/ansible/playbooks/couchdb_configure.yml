@@ -27,7 +27,7 @@
 
     - name: Copy hosts file
       copy:
-        src: "{{ infra_folder_dir }}/hosts/hosts"
+        src: "{{ infra_folder_dir }}/tmp/hosts"
         dest: /home/{{ ansible_user }}/couchdb-config/hosts
         mode: 0755
 

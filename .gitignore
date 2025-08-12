@@ -4,11 +4,9 @@ infra/terraform/terraform.tfstate
 infra/terraform/terraform.tfstate.backup
 infra/terraform/.terraform.tfstate.lock.info
 infra/ansible/inventory.ini
-infra/keys/**
-!infra/keys/.keep
 infra/env/**
 !infra/env/.env.template
-infra/logs/**
-!infra/logs/.keep
-infra/hosts/**
-!infra/hosts/hosts.template
+infra/ssh_node.sh
+infra/tmp/**
+logs/**
+!logs/.keep

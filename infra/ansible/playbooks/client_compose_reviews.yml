@@ -2,12 +2,12 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    base_folder_dir: "../../.."
 
   tasks:
     - name: Copy compose_reviews.sh file
       copy:
-        src: "{{ infra_folder_dir }}/scripts/compose_reviews.sh"
+        src: "{{ base_folder_dir }}/scripts/compose_reviews.sh"
         dest: "/home/ubuntu/compose_reviews.sh"
         owner: ubuntu
         group: ubuntu
@@ -22,7 +22,7 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    base_folder_dir: "../../.."
 
   tasks:
     - name: Run compose_reviews.sh
@@ -34,5 +34,5 @@
     - name: Fetch compose_reviews.log
       fetch:
         src: /home/ubuntu/compose_reviews.log
-        dest: "{{ infra_folder_dir }}/logs/compose_reviews_{{ inventory_hostname }}.log"
+        dest: "{{ base_folder_dir }}/logs/compose_reviews_{{ inventory_hostname }}.log"
         flat: yes

@@ -48,7 +48,7 @@ resource "aws_key_pair" "generated_key" {
 
 resource "local_file" "private_key_pem" {
   content              = tls_private_key.ssh_key.private_key_pem
-  filename             = "../keys/key-${var.instance_name}.pem"
+  filename             = "../tmp/key-${var.instance_name}.pem"
   file_permission      = "0600"
   directory_permission = "0700"
 }

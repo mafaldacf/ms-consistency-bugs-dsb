@@ -43,9 +43,9 @@ module "ec2_node_ap" {
 resource "local_file" "ansible_inventory" {
   filename = "../ansible/inventory.ini"
   content  = <<EOT
-manager ansible_host=${module.ec2_manager.public_ip} private_ip=${module.ec2_manager.private_ip} ansible_ssh_private_key_file=../keys/key-manager.pem
-node_us ansible_host=${module.ec2_node_us.public_ip} private_ip=${module.ec2_node_us.private_ip} ansible_ssh_private_key_file=../keys/key-node-us.pem
-node_ap ansible_host=${module.ec2_node_ap.public_ip} private_ip=${module.ec2_node_ap.private_ip} ansible_ssh_private_key_file=../keys/key-node-ap.pem
+manager ansible_host=${module.ec2_manager.public_ip} private_ip=${module.ec2_manager.private_ip} ansible_ssh_private_key_file=../tmp/key-manager.pem
+node_us ansible_host=${module.ec2_node_us.public_ip} private_ip=${module.ec2_node_us.private_ip} ansible_ssh_private_key_file=../tmp/key-node-us.pem
+node_ap ansible_host=${module.ec2_node_ap.public_ip} private_ip=${module.ec2_node_ap.private_ip} ansible_ssh_private_key_file=../tmp/key-node-ap.pem
 
 [swarm_nodes]
 manager
@@ -66,9 +66,33 @@ EOT
 }
 
 resource "local_file" "cluster_hosts" {
-  filename = "${path.module}/../hosts/hosts"
+  filename = "${path.module}/../tmp/hosts"
   content  = <<EOT
 NODE_01_HOST=${module.ec2_node_us.public_ip}
 NODE_02_HOST=${module.ec2_node_ap.public_ip}
+EOT
+}
+
+resource "local_file" "ssh_node_manager" {
+  filename = "${path.module}/../ssh_node.sh"
+  content  = <<EOT
+#!/bin/bash
+set -e
+
+case "$1" in
+  manager)
+    ssh -i tmp/key-manager.pem ubuntu@${module.ec2_manager.public_ip}
+    ;;
+  us)
+    ssh -i tmp/key-node-us.pem ubuntu@${module.ec2_node_us.public_ip}
+    ;;
+  ap)
+    ssh -i tmp/key-node-ap.pem ubuntu@${module.ec2_node_ap.public_ip}
+    ;;
+  *)
+    echo "Usage: \$0 {manager|us|ap}"
+    exit 1
+    ;;
+esac
 EOT
 }

@@ -28,6 +28,7 @@
   hosts: node_us
   become: yes
   vars:
+    infra_folder_dir: "../.."
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
@@ -38,11 +39,19 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: 0755
+    
+    - name: Append line with couchdb address to .env
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "COUCHDB_ADDRESS={{ ansible_host }}:10010"
+        create: yes
+        state: present
 
 - name: Copy .env file to ap instance
   hosts: node_ap
   become: yes
   vars:
+    infra_folder_dir: "../.."
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
@@ -53,3 +62,10 @@
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: 0755
+
+    - name: Append line with couchdb address to .env
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "COUCHDB_ADDRESS={{ ansible_host }}:10011"
+        create: yes
+        state: present

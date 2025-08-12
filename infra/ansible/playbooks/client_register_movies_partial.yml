@@ -20,7 +20,7 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    base_folder_dir: "../../.."
     start_unix: "{{ ((ansible_date_time.epoch | int) // 60 + 1) * 60 }}" # next full minute
 
   tasks:
@@ -51,5 +51,5 @@
     - name: Fetch register_movies_partial.log
       fetch:
         src: /home/{{ ansible_user }}/register_movies_partial.log
-        dest: ../../logs/register_movies_partial_{{ inventory_hostname }}.log
+        dest: "{{ base_folder_dir }}logs/register_movies_partial_{{ inventory_hostname }}.log"
         flat: yes

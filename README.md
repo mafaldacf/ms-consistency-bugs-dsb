@@ -53,7 +53,7 @@ cd infra/ansible
 ansible-playbook -i inventory.ini playbooks/provision.yml
 
 ansible-playbook -i inventory.ini playbooks/docker_swarm_start.yml
-ansible-playbook -i inventory.ini playbooks/docker_swarm_stop.yml # when restarting or at the end
+ansible-playbook -i inventory.ini playbooks/docker_swarm_stop.yml # at the end
 
 ansible-playbook -i inventory.ini playbooks/couchdb_start.yml
 ansible-playbook -i inventory.ini playbooks/couchdb_configure.yml
@@ -61,7 +61,8 @@ ansible-playbook -i inventory.ini playbooks/couchdb_test.yml
 
 ansible-playbook -i inventory.ini playbooks/app_deploy.yml
 ansible-playbook -i inventory.ini playbooks/app_start.yml
-ansible-playbook -i inventory.ini playbooks/app_clean.yml # when restarting or at the end
+ansible-playbook -i inventory.ini playbooks/app_stop.yml # at the end
+ansible-playbook -i inventory.ini playbooks/app_clean.yml # at the end
 
 ansible-playbook -i inventory.ini playbooks/client_register_users.yml
 ```
@@ -97,10 +98,11 @@ The playbook will gather the clients logs and save them into the `infra/logs/` d
 
 ## OPTIONAL: Run Clients Manually
 
-Connect to each client (IPs available at `infra/hosts/hosts` or `infra/ansible/inventory.ini`)
+Connect to each client:
 ```zsh
-ssh -i infra/keys/key-node-us.pem ubuntu@<public_ip_us>
-ssh -i infra/keys/key-node-us.pem ubuntu@<public_ip_ap>
+./ssh_node.sh manager
+./ssh_node.sh us
+./ssh_node.sh ap
 ```
 
 In each machine, schedule the script to run at a given time in the near future

@@ -2,12 +2,12 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    base_folder_dir: "../../.."
 
   tasks:
     - name: Copy read_movie_info.sh file
       copy:
-        src: "{{ infra_folder_dir }}/scripts/read_movie_info.sh"
+        src: "{{ base_folder_dir }}/scripts/read_movie_info.sh"
         dest: "/home/{{ ansible_user }}/read_movie_info.sh"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
@@ -22,7 +22,7 @@
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    base_folder_dir: "../../.."
 
   tasks:
     - name: Run read_movie_info.sh
@@ -34,5 +34,5 @@
     - name: Fetch read_movie_info.log
       fetch:
         src: /home/{{ ansible_user }}/read_movie_info.log
-        dest: "{{ infra_folder_dir }}/logs/read_movie_info_{{ inventory_hostname }}.log"
+        dest: "{{ base_folder_dir }}/logs/read_movie_info_{{ inventory_hostname }}.log"
         flat: yes

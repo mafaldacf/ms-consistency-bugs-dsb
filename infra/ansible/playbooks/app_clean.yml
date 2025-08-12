@@ -1,0 +1,12 @@
+---
+- name: Clean microservices with docker system prune
+  hosts: dsb_mediamicroservices
+  become: yes
+  vars:
+    remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
+
+  tasks:
+    - name: Run docker system prune
+      shell: docker system prune -a --volumes -f
+      args:
+        chdir: "{{ remote_app_folder_dir }}"

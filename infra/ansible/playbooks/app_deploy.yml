@@ -40,7 +40,7 @@
         group: "{{ ansible_user }}"
         mode: 0755
     
-    - name: Append line with couchdb address to .env
+    - name: Append line with couchdb address ({{ ansible_host }}:10010) to .env at US
       lineinfile:
         path: "{{ remote_app_folder_dir }}/.env"
         line: "COUCHDB_ADDRESS={{ ansible_host }}:10010"
@@ -63,7 +63,7 @@
         group: "{{ ansible_user }}"
         mode: 0755
 
-    - name: Append line with couchdb address to .env
+    - name: Append line with couchdb address ({{ ansible_host }}:10011) to .env at AP
       lineinfile:
         path: "{{ remote_app_folder_dir }}/.env"
         line: "COUCHDB_ADDRESS={{ ansible_host }}:10011"

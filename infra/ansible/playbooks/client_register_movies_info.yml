@@ -5,17 +5,17 @@
     base_folder_dir: "../../.."
 
   tasks:
-    - name: Copy register_movies_ids.sh file
+    - name: Copy register_movies_info.sh file
       copy:
-        src: "{{ base_folder_dir }}/scripts/register_movies_ids.sh"
-        dest: "/home/{{ ansible_user }}/register_movies_ids.sh"
+        src: "{{ base_folder_dir }}/scripts/register_movies_info.sh"
+        dest: "/home/{{ ansible_user }}/register_movies_info.sh"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: 0755
 
-    - name: Remove previous register_movies_ids.log if it exists
+    - name: Remove previous register_movies_info.log if it exists
       file:
-        path: /home/{{ ansible_user }}/register_movies_ids.log
+        path: /home/{{ ansible_user }}/register_movies_info.log
         state: absent
 
 - name: Run clients
@@ -35,23 +35,24 @@
       set_fact:
         start_at_datetime: "{{ remote_datetime.stdout }}"
 
-    - name: Schedule register_movies_ids.sh to run at {{ start_at_datetime }}
+    - name: Schedule register_movies_info.sh to run at {{ start_at_datetime }}
       shell: |
-        echo '/home/{{ ansible_user }}/register_movies_ids.sh > /home/{{ ansible_user }}/register_movies_ids.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
+        echo '/home/{{ ansible_user }}/register_movies_info.sh > /home/{{ ansible_user }}/register_movies_info.log {{ inventory_hostname }} 2>&1' | at '{{ start_at_datetime }}'
       args:
         executable: /bin/bash
 
-    - name: Wait until register_movies_ids.log is created
+    - name: Wait until register_movies_info.log is created
       wait_for:
-        path: /home/{{ ansible_user }}/register_movies_ids.log
+        path: /home/{{ ansible_user }}/register_movies_info.log
         state: present
         timeout: 90
       register: wait_result
       until: wait_result is succeeded
       retries: 3
 
-    - name: Fetch register_movies_ids.log
+    - name: Fetch register_movies_info.log
       fetch:
-        src: /home/{{ ansible_user }}/register_movies_ids.log
-        dest: "{{ base_folder_dir }}/logs/register_movies_ids_{{ inventory_hostname }}.log"
+        src: /home/{{ ansible_user }}/register_movies_info.log
+        dest: "{{ base_folder_dir }}/logs/register_movies_info_{{ inventory_hostname }}.log"
         flat: yes
+

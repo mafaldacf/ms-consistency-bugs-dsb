@@ -9,12 +9,12 @@ terraform {
     required_version = ">= 1.3"
 }
 
-module "dynamodb_global_table" {
-  source         = "./modules/aws_dynamodb"
-  table_name     = "dsb-movie-id"
-  primary_region = "us-east-1"
-  replica_region = "ap-southeast-1"
-}
+#module "dynamodb_global_table" {
+#  source         = "./modules/aws_dynamodb"
+#  table_name     = "dsb-movie-id"
+#  primary_region = "us-east-1"
+#  replica_region = "ap-southeast-1"
+#}
 
 module "ec2_manager" {
   source          = "./modules/aws_ec2"

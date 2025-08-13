@@ -62,37 +62,33 @@ ansible-playbook -i inventory.ini playbooks/couchdb_test.yml
 ansible-playbook -i inventory.ini playbooks/app_deploy.yml
 ansible-playbook -i inventory.ini playbooks/app_start.yml
 ansible-playbook -i inventory.ini playbooks/app_stop.yml # at the end
-ansible-playbook -i inventory.ini playbooks/app_clean.yml # at the end
+ansible-playbook -i inventory.ini playbooks/clean.yml # at the end
 
 ansible-playbook -i inventory.ini playbooks/client_register_users.yml
 ```
 
-## Run Clients
+## Run Experiments
 
 Experiment 1:
-
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies_ids.yml
+ansible-playbook -i inventory.ini playbooks/client_register_movies_info.yml
+ansible-playbook -i inventory.ini playbooks/client_compose_reviews.yml
+ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
+ansible-playbook -i inventory.ini playbooks/client_read_page.yml
 ```
 
 Experiment 2:
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies_partial.yml
-ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
+ansible-playbook -i inventory.ini playbooks/client_register_movies_info_read_page.yml
 ```
 
-Experiment 3:
+Others:
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies_complete.yml
-ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
-
-ansible-playbook -i inventory.ini playbooks/client_compose_review.yml
-ansible-playbook -i inventory.ini playbooks/client_read_page.yml
+ansible-playbook -i inventory.ini playbooks/client_register_movies.yml
 ```
-
 
 The playbook will gather the clients logs and save them into the `infra/logs/` directory.
 
@@ -100,6 +96,7 @@ The playbook will gather the clients logs and save them into the `infra/logs/` d
 
 Connect to each client:
 ```zsh
+cd infra
 ./ssh_node.sh manager
 ./ssh_node.sh us
 ./ssh_node.sh ap
@@ -119,14 +116,6 @@ cat /home/ubuntu/client_register_movies_ids.log
 ```
 
 ## OPTIONAL: Build Image (only if some modification is done to the application)
-
-CouchDB (if docker username is changed then change docker image name in `infra/config/couchdb/stack.yml` accordingly):
-
-```zsh
-cd infra/ansible/config/couchdb/docker
-docker build -t mafaldacf/couchdb:delayed .
-docker push mafaldacf/couchdb:delayed
-```
 
 DSB MediaMicroservices (if docker username is changed then change docker image name in `DeathStarBench/mediaMicroservices/docker-compose.yml` accordingly):
 

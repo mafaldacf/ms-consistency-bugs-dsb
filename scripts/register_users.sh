@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for i in {1..100}; do
+for i in {0..999}; do
   first_name=first_name_$i
   last_name=last_name_$i
   username=username_$i

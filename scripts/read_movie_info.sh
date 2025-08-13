@@ -7,7 +7,7 @@ fi
 
 hostname="$1"
 
-for i in {1..10}; do
-  movie_id="movie_id_${i}_${host}"
+for i in {0..999}; do
+  movie_id="movie_id_${i}_${hostname}"
   curl -sS "http://localhost:8080/wrk2-api/movie-info/read?movie_id=${movie_id}"
 done

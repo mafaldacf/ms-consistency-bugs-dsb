@@ -7,7 +7,7 @@ fi
 
 hostname="$1"
 
-for i in {1..10}; do
+for i in {0..999}; do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
     

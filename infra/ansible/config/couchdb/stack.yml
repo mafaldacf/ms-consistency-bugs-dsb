@@ -16,9 +16,9 @@ services:
           - couchdb_node_01.${COMPOSE_PROJECT_NAME}
     ports:
       - "${PORT_BASE}0:5984"
-    volumes:
-      - "data-couchdb_node_01:/opt/couchdb/data"
-      - "cfg-couchdb_node_01:/opt/couchdb/etc/local.d"
+    #volumes:
+    #  - "data-couchdb_node_01:/opt/couchdb/data"
+    #  - "cfg-couchdb_node_01:/opt/couchdb/etc/local.d"
     cap_add:
       - NET_ADMIN # in order to apply delay
     deploy:
@@ -40,9 +40,9 @@ services:
           - couchdb_node_02.${COMPOSE_PROJECT_NAME}
     ports:
       - "${PORT_BASE}1:5984"
-    volumes:
-      - "data-couchdb_node_02:/opt/couchdb/data"
-      - "cfg-couchdb_node_02:/opt/couchdb/etc/local.d"
+    #volumes:
+    #  - "data-couchdb_node_02:/opt/couchdb/data"
+    #  - "cfg-couchdb_node_02:/opt/couchdb/etc/local.d"
     cap_add:
       - NET_ADMIN # in order to apply delay
     deploy:
@@ -53,8 +53,8 @@ services:
 networks:
   network:
 
-volumes:
-  data-couchdb_node_01:
-  cfg-couchdb_node_01:
-  data-couchdb_node_02:
-  cfg-couchdb_node_02:
+#volumes:
+#  data-couchdb_node_01:
+#  cfg-couchdb_node_01:
+#  data-couchdb_node_02:
+#  cfg-couchdb_node_02:

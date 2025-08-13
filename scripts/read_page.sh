@@ -5,12 +5,15 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-hostname="$1"
-
-for i in {1..10}; do
-  movie_id="movie_id_${i}_${hostname}"
+for i in {0..999}; do
   review_start=0
   review_stop=5
-  curl -sS "http://localhost:8080/wrk2-api/page/read?movie_id=${movie_id}&review_start${review_start}=&review_stop=${review_stop}"
+  
+  movie_id="movie_id_${i}_node_us"
+  curl -sS "http://localhost:8080/wrk2-api/page/read?movie_id=${movie_id}&review_start=${review_start}=&review_stop=${review_stop}"
+
+  movie_id="movie_id_${i}_node_ap"
+  curl -sS "http://localhost:8080/wrk2-api/page/read?movie_id=${movie_id}&review_start=${review_start}=&review_stop=${review_stop}"
+  
+  echo "--------------------------"
 done
- 

@@ -7,20 +7,25 @@ fi
 
 hostname="$1"
 
-for i in {1..10}; do
+for i in {0..999}; do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
-    plot_id=${i}
 
     curl -sS localhost:8080/wrk2-api/movie/register \
         -d "title=${movie_title}&movie_id=${movie_id}"
+done
+
+for i in {0..999}; do
+    movie_id=movie_id_${i}_${hostname}
+    movie_title=title_${i}
+    plot_id=${i}
 
     curl -sS -X POST localhost:8080/wrk2-api/movie-info/write \
         -H "Content-Type: application/json" \
         -d "{\"movie_id\": \"${movie_id}\", \"title\": \"${movie_title}\", \"plot_id\": \"${plot_id}\"}"
 done
 
-for i in {1..10}; do
+for i in {0..999}; do
     cast_info_id=${i}
     cast_name=thename
     cast_gender=1

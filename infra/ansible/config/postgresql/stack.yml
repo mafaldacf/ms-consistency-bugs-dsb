@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  master:
+    image: polinux/postgres-bdr
+    hostname: master
+    environment:
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_USER: admin
+      POSTGRES_DB: mydb
+      MODE: master
+      MASTER_PORT: 5432
+    ports:
+      - "5433:5432"
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-us
+
+  slave1:
+    image: polinux/postgres-bdr
+    hostname: slave1
+    environment:
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_USER: admin
+      POSTGRES_DB: mydb
+      MODE: slave
+      MASTER_ADDRESS: master
+      MASTER_PORT: 5432
+      SLAVE_PORT: 5432
+    ports:
+      - "5434:5432"
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-ap
+
+networks:
+  dbnet:
+    driver: overlay

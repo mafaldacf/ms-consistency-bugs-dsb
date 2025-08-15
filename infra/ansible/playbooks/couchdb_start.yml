@@ -25,7 +25,7 @@
     - name: Deploy stack
       shell: |
         set -a && . ./.env && set +a && \
-        docker stack deploy -c stack.yml vss-db
+        docker stack deploy -c stack.yml vss-couch
       # change dir to force docker to load the .env file from there
       args:
         chdir: /home/{{ ansible_user }}/couchdb-config
@@ -37,18 +37,18 @@
     num_swarm_services: 2
   tasks:
     - name: Check if all services are running
-      shell: docker service ls --format '{{ "{{.Name}} {{.Replicas}}" }}'
+      shell: docker service ls --filter label=com.docker.stack.namespace=vss-couch --format '{{ "{{.Name}} {{.Replicas}}" }}'
       register: services_status
       until: services_status.stdout_lines | select("search", "1/1") | list | length == num_swarm_services
       retries: 10
-      delay: 30
+      delay: 10
 
     - name: Get placement of couchdb_node_01 
-      shell: docker service ps vss-db_couchdb_node_01 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      shell: docker service ps vss-couch_couchdb_node_01 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
       register: couchdb_node_01_ps
 
     - name: Get placement of couchdb_node_02
-      shell: docker service ps vss-db_couchdb_node_02 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      shell: docker service ps vss-couch_couchdb_node_02 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
       register: couchdb_node_02_ps
 
     - name: Print container placement

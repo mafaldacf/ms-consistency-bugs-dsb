@@ -1,5 +1,5 @@
 ---
-- name: Test remote CouchDB HTTP API access
+- name: Test CouchDB connectivity from localhost
   hosts: localhost
   gather_facts: false
   vars:

@@ -6,6 +6,8 @@ curl -sS "http://localhost:8080/wrk2-api/user/register" \
 curl -sS localhost:8080/wrk2-api/movie/register \
     -d "title=title_test_500&movie_id=movie_id_test_500"
 
+curl -sS "localhost:8080/wrk2-api/movie/read?title=title_test_500"
+
 curl -sS -X POST "http://localhost:8080/wrk2-api/movie-info/write" \
   -H "Content-Type: application/json" \
   -d '{"movie_id": "movie_id_test_500", "title": "title_test_500", "plot_id": 500}'

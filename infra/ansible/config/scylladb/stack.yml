@@ -6,11 +6,11 @@ services:
     container_name: scylla-node1
     command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9042:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
-      - "./config/mutant-data.txt:/mutant-data.txt"
+      - "10030:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+    #  - "./config/mutant-data.txt:/mutant-data.txt"
     networks:
       - scylla-net
     deploy:
@@ -23,10 +23,10 @@ services:
     container_name: scylla-node2
     command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9043:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+      - "10031:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
     networks:
       - scylla-net
     deploy:
@@ -39,10 +39,10 @@ services:
     container_name: scylla-node3
     command: --seeds=scylla-node1,scylla-node2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9044:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+      - "10032:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
     networks:
       - scylla-net
     deploy:
@@ -55,10 +55,10 @@ services:
     container_name: scylla-node4
     command: --seeds=scylla-node1,scylla-node4 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9045:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
+      - "10033:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
     networks:
       - scylla-net
     deploy:
@@ -71,10 +71,10 @@ services:
     container_name: scylla-node5
     command: --seeds=scylla-node1,scylla-node4 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9046:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
+      - "10034:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
     networks:
       - scylla-net
     deploy:
@@ -87,10 +87,10 @@ services:
     container_name: scylla-node6
     command: --seeds=scylla-node1,scylla-node4 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
     ports:
-      - "9047:9042"
-    volumes:
-      - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
-      - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
+      - "10035:9042"
+    #volumes:
+    #  - "./config/scylla.yaml:/etc/scylla/scylla.yaml"
+    #  - "./config/cassandra-rackdc.properties.dc2:/etc/scylla/cassandra-rackdc.properties"
     networks:
       - scylla-net
     deploy:

@@ -1,5 +1,5 @@
 ---
-- name: Configure CouchDB cluster with async replication
+- name: Configure PostgreSQL cluster
   hosts: manager
   become: yes
   vars:
@@ -9,32 +9,32 @@
   tasks:
     - name: Ensure cluster directory exists
       file:
-        path: /home/{{ ansible_user }}/couchdb-config
+        path: /home/{{ ansible_user }}/postgresql-config
         state: directory
         mode: 0755
 
-    - name: Copy script
+    - name: Copy async script
       copy:
-        src: "{{ ansible_folder_dir }}/config/couchdb/init-cluster-async.sh"
-        dest: /home/{{ ansible_user }}/couchdb-config/init-cluster-async.sh
+        src: "{{ ansible_folder_dir }}/config/postgresql/init-postgresql.sh"
+        dest: /home/{{ ansible_user }}/postgresql-config/init-postgresql.sh
         mode: 0755
     
     - name: Copy .env file
       copy:
-        src: "{{ ansible_folder_dir }}/config/couchdb/.env"
-        dest: /home/{{ ansible_user }}/couchdb-config/.env
+        src: "{{ ansible_folder_dir }}/config/postgresql/.env"
+        dest: /home/{{ ansible_user }}/postgresql-config/.env
         mode: 0755
 
     - name: Copy hosts file
       copy:
         src: "{{ infra_folder_dir }}/tmp/hosts"
-        dest: /home/{{ ansible_user }}/couchdb-config/hosts
+        dest: /home/{{ ansible_user }}/postgresql-config/hosts
         mode: 0755
 
-    - name: Run CouchDB script
-      shell: ./init-cluster-async.sh
+    - name: Run postgresql script
+      shell: ./init-postgresql.sh
       args:
-        chdir: /home/{{ ansible_user }}/couchdb-config
+        chdir: /home/{{ ansible_user }}/postgresql-config
       register: script_output
       ignore_errors: true  # see output even on error
 

@@ -9,8 +9,6 @@
       copy:
         src: "{{ base_folder_dir }}/scripts/register_users.sh"
         dest: "/home/{{ ansible_user }}/register_users.sh"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
 
     - name: Remove previous register_users.log if it exists

@@ -9,8 +9,6 @@
       copy:
         src: "{{ base_folder_dir }}/scripts/register_movies_info.sh"
         dest: "/home/{{ ansible_user }}/register_movies_info.sh"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
 
     - name: Remove previous register_movies_info.log if it exists
@@ -49,6 +47,10 @@
       register: wait_result
       until: wait_result is succeeded
       retries: 3
+
+    - name: Wait 30 seconds to allow finishing requests
+      wait_for:
+        timeout: 30
 
     - name: Fetch register_movies_info.log
       fetch:

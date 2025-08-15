@@ -87,6 +87,7 @@ Deploy and initialize app:
 ```zsh
 ansible-playbook playbooks/app_deploy.yml
 ansible-playbook playbooks/app_start.yml
+ansible-playbook playbooks/app_test.yml
 ansible-playbook playbooks/client_register_users.yml
 ```
 

@@ -1,0 +1,148 @@
+---
+- name: test mediamicroservices before experiments
+  hosts: dsb_mediamicroservices
+  become: no
+  vars:
+    base: "http://localhost:8080/wrk2-api"
+    user_firstname: "firstname_test_999_{{ inventory_hostname }}"
+    user_lastname: "lastname_test_999_{{ inventory_hostname }}"
+    username: "username_test_999_{{ inventory_hostname }}"
+    password: "password_test_999_{{ inventory_hostname }}"
+    title: "title_test_999_{{ inventory_hostname }}"
+    movie_id: "movie_test_999_{{ inventory_hostname }}"
+    plot_id: 999
+    cast_info_id: 999
+
+  tasks:
+    - name: generate random review text
+      set_fact:
+        rand_text: "{{ lookup('password', '/dev/null length=25 chars=ascii_letters,digits') }}"
+
+    - name: register user
+      uri:
+        url: "{{ base }}/user/register"
+        method: POST
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body: "first_name={{ user_firstname }}&last_name={{ user_lastname }}&username={{ username }}&password={{ password }}"
+        return_content: yes
+        status_code: 200
+      register: reg_user
+
+    - name: register movie id
+      uri:
+        url: "{{ base }}/movie/register"
+        method: POST
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body: "title={{ title }}&movie_id={{ movie_id }}"
+        return_content: yes
+        status_code: 200
+      register: reg_movie
+
+    - name: read movie by title (should say successfully)
+      uri:
+        url: "{{ base }}/movie/read?title={{ title }}"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: read_movie
+      failed_when: "'successfully' not in read_movie.content"
+
+    - name: write movie-info
+      uri:
+        url: "{{ base }}/movie-info/write"
+        method: POST
+        body_format: json
+        body:
+          movie_id: "{{ movie_id }}"
+          title: "{{ title }}"
+          plot_id: "{{ plot_id }}"
+        return_content: yes
+        status_code: 200
+      register: write_movieinfo
+
+    - name: write cast-info
+      uri:
+        url: "{{ base }}/cast-info/write"
+        method: POST
+        body_format: json
+        body:
+          cast_info_id: "{{ cast_info_id }}"
+          name: "thename"
+          gender: 1
+          intro: "theintro"
+        return_content: yes
+        status_code: 200
+      register: write_castinfo
+
+    - name: write plot
+      uri:
+        url: "{{ base }}/plot/write"
+        method: POST
+        body_format: json
+        body:
+          plot_id: "{{ plot_id }}"
+          plot: "theplot"
+        return_content: yes
+        status_code: 200
+      register: write_plot
+
+    - name: read movie-info (should say successfully)
+      uri:
+        url: "{{ base }}/movie-info/read?movie_id={{ movie_id }}"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: read_movieinfo
+      failed_when: "'successfully' not in read_movieinfo.content"
+
+    - name: read page before reviws (should say successfully)
+      uri:
+        url: "{{ base }}/page/read?movie_id={{ movie_id }}&review_start=0&review_stop=1"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: read_page_1
+      failed_when: "'successfully' not in read_page_1.content"
+
+    - name: compose review with random text
+      uri:
+        url: "{{ base }}/review/compose"
+        method: POST
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body: "text={{ rand_text }}&username={{ username }}&password={{ password }}&rating=5&title={{ title }}"
+        return_content: yes
+        status_code: 200
+      register: review_compose_1
+
+    - name: compose review with fixed text
+      uri:
+        url: "{{ base }}/review/compose"
+        method: POST
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body: "text=thetext&username={{ username }}&password={{ password }}&rating=5&title={{ title }}"
+        return_content: yes
+        status_code: 200
+      register: review_compose_2
+
+    - name: read page after reviews (should say successfully)
+      uri:
+        url: "{{ base }}/page/read?movie_id={{ movie_id }}&review_start=0&review_stop=1"
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: read_page_2
+      failed_when: "'successfully' not in read_page_2.content"
+
+    - name: show brief outputs (for debugging)
+      debug:
+        msg:
+          - "user: {{ reg_user.content | default('') | truncate(120, True) }}"
+          - "movie register: {{ reg_movie.content | default('') | truncate(120, True) }}"
+          - "movie read: {{ read_movie.content | default('') | truncate(120, True) }}"
+          - "movie-info read: {{ read_movieinfo.content | default('') | truncate(120, True) }}"
+          - "page read 1: {{ read_page_1.content | default('') | truncate(120, True) }}"
+          - "page read 2: {{ read_page_2.content | default('') | truncate(120, True) }}"

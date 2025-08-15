@@ -12,16 +12,12 @@
       copy:
         src: "{{ local_app_folder_dir }}/nginx-web-server/"
         dest: "{{ remote_app_folder_dir }}/nginx-web-server/"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
     
     - name: Copy gen lua files for docker-compose
       copy:
         src: "{{ local_app_folder_dir }}/gen-lua/"
         dest: "{{ remote_app_folder_dir }}/gen-lua/"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
 
 - name: Copy .env file to us instance
@@ -34,16 +30,28 @@
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "{{ infra_folder_dir }}/env/us.env"
+        src: "{{ infra_folder_dir }}/providers/aws/us.env"
         dest: "{{ remote_app_folder_dir }}/.env"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
     
     - name: Append line with couchdb address ({{ ansible_host }}:10010) to .env at US
       lineinfile:
         path: "{{ remote_app_folder_dir }}/.env"
         line: "COUCHDB_ADDRESS={{ ansible_host }}:10010"
+        create: yes
+        state: present
+
+    - name: Append line with postgresql address ({{ ansible_host }}:10020) to .env at US
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "POSTGRESQL_ADDRESS={{ ansible_host }}:10020"
+        create: yes
+        state: present
+
+    - name: Append line with scylladb address ({{ ansible_host }}:10030) to .env at US
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "SCYLLADB_ADDRESS={{ ansible_host }}:10030"
         create: yes
         state: present
 
@@ -57,15 +65,27 @@
   tasks:
     - name: Copy .env file to us instance
       copy:
-        src: "{{ infra_folder_dir }}/env/ap.env"
+        src: "{{ infra_folder_dir }}/providers/aws/ap.env"
         dest: "{{ remote_app_folder_dir }}/.env"
-        owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
         mode: 0755
 
     - name: Append line with couchdb address ({{ ansible_host }}:10011) to .env at AP
       lineinfile:
         path: "{{ remote_app_folder_dir }}/.env"
         line: "COUCHDB_ADDRESS={{ ansible_host }}:10011"
+        create: yes
+        state: present
+
+    - name: Append line with postgresql address ({{ ansible_host }}:10022) to .env at AP
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "POSTGRESQL_ADDRESS={{ ansible_host }}:10022"
+        create: yes
+        state: present
+
+    - name: Append line with scylladb address ({{ ansible_host }}:10033) to .env at AP
+      lineinfile:
+        path: "{{ remote_app_folder_dir }}/.env"
+        line: "SCYLLADB_ADDRESS={{ ansible_host }}:10033"
         create: yes
         state: present

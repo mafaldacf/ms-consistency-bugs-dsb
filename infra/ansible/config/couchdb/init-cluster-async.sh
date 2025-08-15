@@ -4,15 +4,28 @@ set -euo pipefail
 source .env
 source hosts
 
-DBS=(mydb movieid movieinfo moviereview reviewstorage plot castinfo)
+COUCHDB_DATABASES=(movieid movieinfo moviereview reviewstorage plot castinfo)
 
-host_for() { [ "$1" = "0" ] && echo "$NODE_01_HOST" || echo "$NODE_02_HOST"; }
-port_for() { echo "${PORT_BASE}$1"; }
+compute_node_host() {
+  case "$1" in
+    0) echo "$NODE_01_HOST" ;;
+    1) echo "$NODE_02_HOST" ;;
+    *) echo "invalid node id: $1" >&2; exit 1 ;;
+  esac
+}
+
+compute_node_port() {
+  case "$1" in
+    0) echo "10010" ;;
+    1) echo "10011" ;;
+    *) echo "invalid node id: $1" >&2; exit 1 ;;
+  esac
+}
 
 echo "initializing each node as single-node..."
 for NODE_ID in 0 1; do
-  HOST="$(host_for "$NODE_ID")"
-  PORT="$(port_for "$NODE_ID")"
+  HOST="$(compute_node_host "$NODE_ID")"
+  PORT="$(compute_node_port "$NODE_ID")"
   echo "configuring node $NODE_ID at $HOST:$PORT"
 
   curl -sS -X POST \
@@ -38,18 +51,18 @@ done
 
 echo "creating databases on each node (idempotent)..."
 for NODE_ID in 0 1; do
-  HOST="$(host_for "$NODE_ID")"
-  PORT="$(port_for "$NODE_ID")"
-  for DB in "${DBS[@]}"; do
+  HOST="$(compute_node_host "$NODE_ID")"
+  PORT="$(compute_node_port "$NODE_ID")"
+  for DB in "${COUCHDB_DATABASES[@]}"; do
     curl -sS -X PUT "http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${HOST}:${PORT}/${DB}" >/dev/null || true
   done
 done
 
-echo "waiting for all dbs to be ready..."
+echo "waiting for all COUCHDB_DATABASES to be ready..."
 for NODE_ID in 0 1; do
-  HOST="$(host_for "$NODE_ID")"
-  PORT="$(port_for "$NODE_ID")"
-  for DB in "${DBS[@]}"; do
+  HOST="$(compute_node_host "$NODE_ID")"
+  PORT="$(compute_node_port "$NODE_ID")"
+  for DB in "${COUCHDB_DATABASES[@]}"; do
     echo -n "  node ${NODE_ID} db=${DB} "
     until [ "$(curl -s -o /dev/null -w '%{http_code}' "http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${HOST}:${PORT}/${DB}")" = "200" ]; do
       sleep 1; echo -n "."
@@ -66,20 +79,23 @@ post_rep() {
     | grep -E '"ok":true|"conflict"' || true
 }
 
-SRC0="http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${NODE_01_HOST}:$(port_for 0)"
-SRC1="http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${NODE_02_HOST}:$(port_for 1)"
+# use external ips and not docker swarm internal hosts
+# because when using AWS with one VPC per region
+# workers advertize their public ips in docker swarm
+SRC0="http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${NODE_01_HOST}:$(compute_node_port 0)"
+SRC1="http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${NODE_02_HOST}:$(compute_node_port 1)"
 
 echo "setting up continuous replications both ways for each db..."
-for DB in "${DBS[@]}"; do
+for DB in "${COUCHDB_DATABASES[@]}"; do
   echo "  ${DB}: node0 -> node1"
-  post_rep "$(host_for 0)" "$(port_for 0)" "replicate-${DB}-to-node1" "${SRC0}/${DB}" "${SRC1}/${DB}"
+  post_rep "$(compute_node_host 0)" "$(compute_node_port 0)" "replicate-${DB}-to-node1" "${SRC0}/${DB}" "${SRC1}/${DB}"
   echo "  ${DB}: node1 -> node0"
-  post_rep "$(host_for 1)" "$(port_for 1)" "replicate-${DB}-to-node0" "${SRC1}/${DB}" "${SRC0}/${DB}"
+  post_rep "$(compute_node_host 1)" "$(compute_node_port 1)" "replicate-${DB}-to-node0" "${SRC1}/${DB}" "${SRC0}/${DB}"
 done
 
 echo "verifying scheduler state (node0 and node1)..."
 for NODE_ID in 0 1; do
-  HOST="$(host_for "$NODE_ID")"; PORT="$(port_for "$NODE_ID")"
+  HOST="$(compute_node_host "$NODE_ID")"; PORT="$(compute_node_port "$NODE_ID")"
   echo "  node ${NODE_ID} (_scheduler/docs):"
   curl -sS "http://${COUCHDB_USER}:${COUCHDB_PASSWORD}@${HOST}:${PORT}/_scheduler/docs" || true
   echo

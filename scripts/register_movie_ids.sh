@@ -7,10 +7,10 @@ fi
 
 hostname="$1"
 
-for i in {0..999}; do
+for i in {5000..5999}; do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
-    
+
     curl -sS localhost:8080/wrk2-api/movie/register \
         -d "title=${movie_title}&movie_id=${movie_id}"
 done

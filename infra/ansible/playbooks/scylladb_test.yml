@@ -1,0 +1,72 @@
+---
+- name: Test ScyllaDB connectivity from manager
+  hosts: manager
+  gather_facts: false
+  vars:
+    scylladb_port_01: 9042
+    scylladb_port_02: 9043
+    scylladb_port_03: 9044
+    scylladb_port_04: 9045
+    scylladb_port_05: 9046
+    scylladb_port_06: 9047
+  tasks:
+    - name: Test scylladb_node_01 connection
+      shell: cqlsh {{ hostvars['node_us'].ansible_host }} {{ scylladb_port_01 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_01_conn
+      ignore_errors: true
+
+    - name: Test scylladb_node_02 connection
+      shell: cqlsh {{ hostvars['node_us'].ansible_host }} {{ scylladb_port_02 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_02_conn
+      ignore_errors: true
+
+    - name: Test scylladb_node_03 connection
+      shell: cqlsh {{ hostvars['node_us'].ansible_host }} {{ scylladb_port_03 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_03_conn
+      ignore_errors: true
+
+    - name: Test scylladb_node_04 connection
+      shell: cqlsh {{ hostvars['node_ap'].ansible_host }} {{ scylladb_port_04 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_04_conn
+      ignore_errors: true
+
+    - name: Test scylladb_node_05 connection
+      shell: cqlsh {{ hostvars['node_ap'].ansible_host }} {{ scylladb_port_05 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_05_conn
+      ignore_errors: true
+
+    - name: Test scylladb_node_06 connection
+      shell: cqlsh {{ hostvars['node_ap'].ansible_host }} {{ scylladb_port_06 }} -e "DESCRIBE KEYSPACES"
+      register: scylladb_node_06_conn
+      ignore_errors: true
+
+    - name: Show connection test results
+      debug:
+        msg: |
+          ScyllaDB Node 01 Connection: {{ scylladb_node_01_conn.stdout }}
+          ScyllaDB Node 02 Connection: {{ scylladb_node_02_conn.stdout }}
+          ScyllaDB Node 03 Connection: {{ scylladb_node_03_conn.stdout }}
+          ScyllaDB Node 04 Connection: {{ scylladb_node_04_conn.stdout }}
+          ScyllaDB Node 05 Connection: {{ scylladb_node_05_conn.stdout }}
+          ScyllaDB Node 06 Connection: {{ scylladb_node_06_conn.stdout }}
+
+    - name: Debug return codes
+      debug:
+        msg: |
+          scylladb_node_01_conn.rc = {{ scylladb_node_01_conn.rc }}
+          scylladb_node_02_conn.rc = {{ scylladb_node_02_conn.rc }}
+          scylladb_node_03_conn.rc = {{ scylladb_node_03_conn.rc }}
+          scylladb_node_04_conn.rc = {{ scylladb_node_04_conn.rc }}
+          scylladb_node_05_conn.rc = {{ scylladb_node_05_conn.rc }}
+          scylladb_node_06_conn.rc = {{ scylladb_node_06_conn.rc }}
+
+    - name: Fail if any ScyllaDB node connection failed
+      fail:
+        msg: "One or more ScyllaDB nodes are not reachable!"
+      when: >
+        scylladb_node_01_conn.rc != 0 or
+        scylladb_node_02_conn.rc != 0 or
+        scylladb_node_03_conn.rc != 0 or
+        scylladb_node_04_conn.rc != 0 or
+        scylladb_node_05_conn.rc != 0 or
+        scylladb_node_06_conn.rc != 0

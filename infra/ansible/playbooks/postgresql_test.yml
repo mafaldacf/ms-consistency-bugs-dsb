@@ -1,0 +1,49 @@
+---
+- name: Test PostgreSQL connectivity from manager
+  hosts: manager
+  gather_facts: false
+  vars:
+    postgresql_user: admin
+    postgresql_password: admin
+    postgresql_database: mediamicroservices
+    postgresql_node_01_port: 10020
+    postgresql_node_02_port: 10021
+    postgresql_node_03_port: 10022
+
+  tasks:
+    - name: Test postgresql_node_01 connection (port {{ postgresql_node_01_port }})
+      shell: PGPASSWORD={{ postgresql_password }} psql -h {{ hostvars['node_us'].ansible_host }} -p {{ postgresql_node_01_port }} -U {{ postgresql_user }} -d {{ postgresql_database }} -c '\dt'
+      register: postgresql_node_01_conn
+      ignore_errors: true
+
+    - name: Test postgresql_node_02 connection (port {{ postgresql_node_02_port }})
+      shell: PGPASSWORD={{ postgresql_password }} psql -h {{ hostvars['node_us'].ansible_host }} -p {{ postgresql_node_02_port }} -U {{ postgresql_user }} -d {{ postgresql_database }} -c '\dt'
+      register: postgresql_node_02_conn
+      ignore_errors: true
+
+    - name: Test postgresql_node_03 connection (port {{ postgresql_node_03_port }})
+      shell: PGPASSWORD={{ postgresql_password }} psql -h {{ hostvars['node_ap'].ansible_host }} -p {{ postgresql_node_03_port }} -U {{ postgresql_user }} -d {{ postgresql_database }} -c '\dt'
+      register: postgresql_node_03_conn
+      ignore_errors: true
+
+    - name: Show connection test results
+      debug:
+        msg: |
+          PostgreSQL Node 01 connection: {{ postgresql_node_01_conn.stdout }}
+          PostgreSQL Node 02 connection: {{ postgresql_node_02_conn.stdout }}
+          PostgreSQL Node 03 connection: {{ postgresql_node_03_conn.stdout }}
+
+    - name: Fail if any DB connection failed
+      fail:
+        msg: "One or more PostgreSQL nodes are not reachable!"
+      when: >
+        postgresql_node_01_conn.rc != 0 or
+        postgresql_node_02_conn.rc != 0 or
+        postgresql_node_03_conn.rc != 0
+
+    - name: Debug return codes
+      debug:
+        msg: |
+          postgresql_node_01_conn.rc = {{ postgresql_node_01_conn.rc }}
+          postgresql_node_02_conn.rc = {{ postgresql_node_02_conn.rc }}
+          postgresql_node_03_conn.rc = {{ postgresql_node_03_conn.rc }}

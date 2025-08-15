@@ -1,0 +1,78 @@
+---
+- name: Setup manager
+  hosts: manager
+  become: yes
+  vars:
+    ansible_folder_dir: ".."
+  tasks:
+    - name: Copy scylla config
+      copy:
+        src: "{{ ansible_folder_dir }}/cluster/scylla/config/"
+        dest: /home/{{ ansible_user }}/scylladb-cluster/config/
+        mode: '0755'
+
+    - name: Copy stack file
+      copy:
+        src: "{{ ansible_folder_dir }}/cluster/scylla/stack.yml"
+        dest: /home/{{ ansible_user }}/scylladb-cluster/stack.yml
+
+    - name: Deploy ScyllaDB stack
+      shell: docker stack deploy -c stack.yml vss-scylla
+      args:
+        chdir: /home/{{ ansible_user }}/scylladb-cluster
+
+- name: Test Docker Swarm ScyllaDB cluster
+  hosts: manager
+  become: yes
+  vars:
+    num_swarm_services: 6
+  tasks:
+    - name: Check if all services are running
+      shell: docker service ls --filter label=com.docker.stack.namespace=vss-scylla --format '{{ "{{.Name}} {{.Replicas}}" }}'
+      register: services_status
+      until: services_status.stdout_lines | select("search", "1/1") | list | length == num_swarm_services
+      retries: 10
+      delay: 10
+
+    - name: Get placement of scylladb_node_01
+      shell: docker service ps vss-scylla_scylla-node1 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_01_ps
+
+    - name: Get placement of scylladb_node_02
+      shell: docker service ps vss-scylla_scylla-node2 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_02_ps
+
+    - name: Get placement of scylladb_node_03
+      shell: docker service ps vss-scylla_scylla-node3 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_03_ps
+
+    - name: Get placement of scylladb_node_04
+      shell: docker service ps vss-scylla_scylla-node4 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_04_ps
+
+    - name: Get placement of scylladb_node_05
+      shell: docker service ps vss-scylla_scylla-node5 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_05_ps
+
+    - name: Get placement of scylladb_node_06
+      shell: docker service ps vss-scylla_scylla-node6 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: scylladb_node_06_ps
+
+    - name: Print container placement
+      debug:
+        msg: |
+          Scylla Node 01: {{ scylladb_node_01_ps.stdout }}
+          Scylla Node 02: {{ scylladb_node_02_ps.stdout }}
+          Scylla Node 03: {{ scylladb_node_03_ps.stdout }}
+          Scylla Node 04: {{ scylladb_node_04_ps.stdout }}
+          Scylla Node 05: {{ scylladb_node_05_ps.stdout }}
+          Scylla Node 06: {{ scylladb_node_06_ps.stdout }}
+
+    - name: Debug nodetool status of scylladb_node_01
+      shell: docker exec -i $(docker ps --filter "name=vss-scylla_scylla-node1" --format '{{ "{{.Names}}" }}') nodetool status
+      register: nodetool_status
+      ignore_errors: true
+
+    - name: Show nodetool status output
+      debug:
+        var: nodetool_status.stdout

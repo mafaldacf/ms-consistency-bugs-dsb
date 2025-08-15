@@ -4,7 +4,7 @@
   become: yes
   tasks:
     - name: Initialize Swarm
-      shell: docker swarm init --advertise-addr {{ ansible_host }}
+      shell: docker swarm init --advertise-addr {{ swarm_advertise_addr }}
       register: swarm_init
       changed_when: "'This node is already part of a swarm' not in swarm_init.stderr"
       failed_when: "'Error' in swarm_init.stderr and 'already part of a swarm' not in swarm_init.stderr"
@@ -22,7 +22,7 @@
   become: yes
   tasks:
     - name: Join swarm
-      shell: docker swarm join --token {{ hostvars['manager'].swarm_worker_token }} {{ hostvars['manager'].ansible_host }}:2377
+      shell: docker swarm join --token {{ hostvars['manager'].swarm_worker_token }} {{ hostvars['manager'].swarm_advertise_addr }}:2377
       register: join_result
       changed_when: "'This node is already part of a swarm' not in join_result.stdout"
       failed_when: "'Error' in join_result.stdout and 'already part of a swarm' not in join_result.stdout"

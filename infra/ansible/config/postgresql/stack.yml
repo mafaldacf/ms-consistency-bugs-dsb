@@ -1,40 +1,76 @@
 version: '3.8'
 
 services:
-  master:
+  postgresql_node_01:
     image: polinux/postgres-bdr
-    hostname: master
+    hostname: postgresql_node_01
     environment:
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_USER: admin
-      POSTGRES_DB: mydb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
       MODE: master
       MASTER_PORT: 5432
     ports:
-      - "5433:5432"
+      - "10020:5432"
+    networks:
+      network:
+        aliases:
+          - postgresql_node_01.${COMPOSE_PROJECT_NAME}
     deploy:
       placement:
         constraints:
           - node.hostname == node-us
 
-  slave1:
+  # place in same machine as postgresql_node_01
+  postgresql_node_02:
     image: polinux/postgres-bdr
-    hostname: slave1
+    hostname: postgresql_node_02
     environment:
-      POSTGRES_PASSWORD: testpass
-      POSTGRES_USER: admin
-      POSTGRES_DB: mydb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
       MODE: slave
-      MASTER_ADDRESS: master
+      MASTER_ADDRESS: postgresql_node_01
+      # use external ports and not docker swarm internal ports
+      # because when using AWS with one VPC per region
+      # workers advertize their public ips in docker swarm
       MASTER_PORT: 5432
       SLAVE_PORT: 5432
     ports:
-      - "5434:5432"
+      - "10021:5432"
+    networks:
+      network:
+        aliases:
+          - postgresql_node_02.${COMPOSE_PROJECT_NAME}
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-us
+
+  postgresql_node_03:
+    image: polinux/postgres-bdr
+    hostname: postgresql_node_03
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+      MODE: slave
+      MASTER_ADDRESS: postgresql_node_01
+      # use external ports and not docker swarm internal ports
+      # because when using AWS with one VPC per region
+      # workers advertize their public ips in docker swarm
+      MASTER_PORT: 5432
+      SLAVE_PORT: 5432
+    ports:
+      - "10022:5432"
+    networks:
+      network:
+        aliases:
+          - postgresql_node_03.${COMPOSE_PROJECT_NAME}
     deploy:
       placement:
         constraints:
           - node.hostname == node-ap
 
 networks:
-  dbnet:
-    driver: overlay
+  network:

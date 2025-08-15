@@ -1,0 +1,63 @@
+---
+- name: Deploy PostgreSQL cluster
+  hosts: manager
+  become: yes
+  vars:
+    ansible_folder_dir: ".."
+
+  tasks:
+    - name: Ensure cluster directory exists
+      file:
+        path: /home/{{ ansible_user }}/postgresql-config
+        state: directory
+        mode: '0750'
+
+    - name: Copy stack file
+      copy:
+        src: "{{ ansible_folder_dir }}/config/postgresql/stack.yml"
+        dest: /home/{{ ansible_user }}/postgresql-config/stack.yml
+
+    - name: Copy .env file
+      copy:
+        src: "{{ ansible_folder_dir }}/config/postgresql/.env"
+        dest: /home/{{ ansible_user }}/postgresql-config/.env
+
+    - name: Deploy stack
+      shell: |
+        set -a && . ./.env && set +a && \
+        docker stack deploy -c stack.yml vss-psql
+      # change dir to force docker to load the .env file from there
+      args:
+        chdir: /home/{{ ansible_user }}/postgresql-config
+
+- name: Test Docker Swarm PostgreSQL cluster
+  hosts: manager
+  become: yes
+  vars:
+    num_swarm_services: 3
+  tasks:
+    - name: Check if all services are running
+      shell: docker service ls --filter label=com.docker.stack.namespace=vss-psql --format '{{ "{{.Name}} {{.Replicas}}" }}'
+      register: services_status
+      until: services_status.stdout_lines | select("search", "1/1") | list | length == num_swarm_services
+      retries: 10
+      delay: 20
+
+    - name: Get placement of postgresql_node_01 
+      shell: docker service ps vss-psql_postgresql_node_01 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: postgresql_node_01_ps
+
+    - name: Get placement of postgresql_node_02
+      shell: docker service ps vss-psql_postgresql_node_02 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: postgresql_node_02_ps
+
+    - name: Get placement of postgresql_node_03
+      shell: docker service ps vss-psql_postgresql_node_03 --format '{{ "{{.Name}} {{.Node}} {{.CurrentState}}" }}'
+      register: postgresql_node_03_ps
+
+    - name: Print container placement
+      debug:
+        msg: |
+          PostgreSQL Node 01: {{ postgresql_node_01_ps.stdout }}
+          PostgreSQL Node 02: {{ postgresql_node_02_ps.stdout }}
+          PostgreSQL Node 03: {{ postgresql_node_03_ps.stdout }}

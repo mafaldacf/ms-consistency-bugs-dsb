@@ -41,11 +41,11 @@ module "ec2_node_ap" {
 }
 
 resource "local_file" "ansible_inventory" {
-  filename = "../ansible/inventory.ini"
+  filename = "../../ansible/inventory.ini"
   content  = <<EOT
-manager ansible_host=${module.ec2_manager.public_ip} private_ip=${module.ec2_manager.private_ip} ansible_ssh_private_key_file=../tmp/key-manager.pem
-node_us ansible_host=${module.ec2_node_us.public_ip} private_ip=${module.ec2_node_us.private_ip} ansible_ssh_private_key_file=../tmp/key-node-us.pem
-node_ap ansible_host=${module.ec2_node_ap.public_ip} private_ip=${module.ec2_node_ap.private_ip} ansible_ssh_private_key_file=../tmp/key-node-ap.pem
+manager ansible_host=${module.ec2_manager.public_ip} swarm_advertise_addr=${module.ec2_manager.public_ip} ansible_ssh_private_key_file=../../tmp/key-manager.pem
+node_us ansible_host=${module.ec2_node_us.public_ip} swarm_advertise_addr=${module.ec2_node_us.public_ip} ansible_ssh_private_key_file=../../tmp/key-node-us.pem
+node_ap ansible_host=${module.ec2_node_ap.public_ip} swarm_advertise_addr=${module.ec2_node_ap.public_ip} ansible_ssh_private_key_file=../../tmp/key-node-ap.pem
 
 [swarm_nodes]
 manager
@@ -66,7 +66,7 @@ EOT
 }
 
 resource "local_file" "cluster_hosts" {
-  filename = "${path.module}/../tmp/hosts"
+  filename = "${path.module}/../../tmp/hosts"
   content  = <<EOT
 NODE_01_HOST=${module.ec2_node_us.public_ip}
 NODE_02_HOST=${module.ec2_node_ap.public_ip}
@@ -74,7 +74,7 @@ EOT
 }
 
 resource "local_file" "ssh_node_manager" {
-  filename = "${path.module}/../ssh_node.sh"
+  filename = "${path.module}/../../ssh_node.sh"
   content  = <<EOT
 #!/bin/bash
 set -e

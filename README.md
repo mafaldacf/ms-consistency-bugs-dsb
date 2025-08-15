@@ -4,103 +4,129 @@
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible) >= 2.18.3
 - [Docker](https://docs.docker.com/engine/install/) >= 28.0.0
 - [Docker Compose](https://docs.docker.com/compose/install/) >= 2.33.1
-- [AWS](console.aws.amazon.com) account
-    - Resources: VPC, EC2, DynamoDB
-    - Regions: `us-east-1`, `ap-southeast-1`
+- [GCP account](console.cloud.google.com) OR [AWS account](console.aws.amazon.com)
 
-# Deployment
+# Prepare Environment
 
-## Prepare Environment
+## Option 1: GCP
 
-Generate a new access key in the [AWS Console](http://console.aws.amazon.com/iam/home#/security_credentials), if you don't already have one
+Generate a new service account key in the [GCP Console](http://console.cloud.google.com/iam-admin/serviceaccounts), if you don't already have one, and save it into `infra/providers/gcp/credentials.json`.
 
-Set up your `~/.aws/credentials` (to be used by Terraform)
+Make sure your gcp ssh public key is present in `~/.ssh/google_compute_engine.pub`.
+
+Go to `infra/terraform/gcp/variables.tf` and change any parameter if needed.
+
+## Option 2: AWS
+
+Generate a new access key in the [AWS Console](http://console.aws.amazon.com/iam/home#/security_credentials), if you don't already have one.
+
+Set up your `~/.aws/credentials` (to be used by Terraform):
 
 ```zsh
 AWS_ACCESS_KEY_ID=<access_key>
 AWS_SECRET_ACCESS_KEY=<secret_access_key>
 ```
 
-Copy `infra/env/.env.template` into a new `infra/env/us.env`, add your AWS credentials (key and secret key) and set the region as `us-east-1` (to be used by Ansible). The content should have something like:
+Copy `infra/providers/aws/.env.template` into a new `infra/env/us.env`, add your AWS credentials (key and secret key) and set the region as `us-east-1` (to be used by Ansible).
+
+
+Copy `infra/providers/aws/.env.template` into a new `infra/env/ap.env`, add your AWS credentials (key and secret key) and set the region as `ap-southeast-1` (to be used by Ansible).
+
+# Deploy Infrastructure
+
+## Option 1: GCP
+
+Deploy Compute Engine machines:
 
 ```zsh
-AWS_ACCESS_KEY_ID=<access_key>
-AWS_SECRET_ACCESS_KEY=<secret_access_key>
-AWS_REGION=us-east-1
-```
-
-Copy `infra/env/.env.template` into a new `infra/env/ap.env`, add your AWS credentials (key and secret key) and set the region as `ap-southeast-1` (to be used by Ansible). The content should have something like:
-
-```zsh
-AWS_ACCESS_KEY_ID=<access_key>
-AWS_SECRET_ACCESS_KEY=<secret_access_key>
-AWS_REGION=ap-southeast-1
-```
-
-## Deploy Infrastructure
-
-Deploy EC2 instances and DynamoDB table (commented for now):
-
-```zsh
-cd infra/terraform
+cd infra/terraform/gcp
 terraform init
 terraform apply
 ```
 
-Configure and deploy app and database
+## Option 2: AWS
+
+Deploy EC2 instances and DynamoDB table (commented for now):
+
+```zsh
+cd infra/terraform/aws
+terraform init
+terraform apply
+```
+
+# Configure Infrastructure
+
+Provision machines and initialize docker swarm:
 
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/provision.yml
-
-ansible-playbook -i inventory.ini playbooks/docker_swarm_start.yml
-
-ansible-playbook -i inventory.ini playbooks/couchdb_start.yml
-ansible-playbook -i inventory.ini playbooks/couchdb_configure.yml
-ansible-playbook -i inventory.ini playbooks/couchdb_test.yml
-
-ansible-playbook -i inventory.ini playbooks/app_deploy.yml
-ansible-playbook -i inventory.ini playbooks/app_start.yml
-
-ansible-playbook -i inventory.ini playbooks/client_register_users.yml
+ansible-playbook playbooks/provision.yml
+ansible-playbook playbooks/docker_swarm_start.yml
 ```
 
-Restart or clean everything
+Deploy and initialize databases:
 
 ```zsh
-cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/docker_swarm_stop.yml
-ansible-playbook -i inventory.ini playbooks/app_stop.yml
-ansible-playbook -i inventory.ini playbooks/clean.yml
+# CouchDB
+ansible-playbook playbooks/couchdb_start.yml
+ansible-playbook playbooks/couchdb_configure.yml
+ansible-playbook playbooks/couchdb_test.yml
 
-cd infra/terraform
-terraform destroy
+# PostgreSQL
+ansible-playbook playbooks/postgresql_start.yml
+ansible-playbook playbooks/postgresql_configure.yml
+ansible-playbook playbooks/postgresql_test.yml
+
+# ScyllaDB
+ansible-playbook playbooks/scylladb_start.yml
+ansible-playbook playbooks/scylladb_test.yml
 ```
 
-## Run Experiments
+Deploy and initialize app:
+
+```zsh
+ansible-playbook playbooks/app_deploy.yml
+ansible-playbook playbooks/app_start.yml
+ansible-playbook playbooks/client_register_users.yml
+```
+
+# Run Experiments
 
 Experiment 1:
 ```zsh
 cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies_info.yml
-ansible-playbook -i inventory.ini playbooks/client_compose_reviews.yml
-ansible-playbook -i inventory.ini playbooks/client_read_movie_info.yml
-ansible-playbook -i inventory.ini playbooks/client_read_page.yml
+ansible-playbook playbooks/client_register_movies_info.yml
+ansible-playbook playbooks/client_compose_reviews.yml
+ansible-playbook playbooks/client_read_movie_info.yml
+ansible-playbook playbooks/client_read_page.yml
 ```
 
 Experiment 2:
 ```zsh
-cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies_info_read_page.yml
+ansible-playbook playbooks/client_register_movies_info_read_page.yml
 ```
 
 Others:
 ```zsh
-cd infra/ansible
-ansible-playbook -i inventory.ini playbooks/client_register_movies.yml
+ansible-playbook playbooks/client_register_movie_ids.yml
+ansible-playbook playbooks/client_read_movie_ids.yml
 ```
 
 The playbooks will gather the clients logs and save them into the `logs/` directory.
+
+# Clean or Restart Resources
+
+(as needed)
+
+```zsh
+cd infra/ansible
+ansible-playbook playbooks/docker_swarm_stop.yml
+ansible-playbook playbooks/app_stop.yml
+ansible-playbook playbooks/clean.yml
+
+cd infra/terraform
+terraform destroy
+```
 
 # Additional Content
 

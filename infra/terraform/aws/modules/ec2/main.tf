@@ -18,14 +18,22 @@ variable "docker_swarm_internal_ports_udp" {
   default = ["7946", "4789"]
 }
 
-variable "couchdb_external_ports_tcp" {
+variable "database_external_posts" {
   type    = list(string)
-  default = ["5984"]
+  # 1001X -> couchdb
+  # 1002X -> postgresql
+  # 1003X -> scylladb
+  default = ["10010", "10011", "10020", "10021", "10022", "10030", "10031", "10032", "10033", "10034", "10035"]
 }
 
 variable "couchdb_internal_ports_tcp" {
   type    = list(string)
-  default = ["5986", "10010", "10011", "10012"]
+  default = ["5984", "5986"]
+}
+
+variable "postgresql_internal_ports_tcp" {
+  type    = list(string)
+  default = ["5432"]
 }
 
 provider "aws" {
@@ -110,9 +118,9 @@ resource "aws_security_group_rule" "rule_docker_swarm_internal_ports_udp" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_security_group_rule" "rule_couchdb_external_ports_tcp" {
-  for_each          = toset(var.couchdb_external_ports_tcp)
-  description       = "couchdb external ports tcp"
+resource "aws_security_group_rule" "rule_database_external_ports" {
+  for_each          = toset(var.database_external_posts)
+  description       = "database external ports tcp"
   security_group_id = aws_security_group.dsb_security_group.id
   type              = "ingress"
   from_port         = each.value
@@ -121,10 +129,20 @@ resource "aws_security_group_rule" "rule_couchdb_external_ports_tcp" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-
 resource "aws_security_group_rule" "rule_couchdb_internal_ports_tcp" {
   for_each          = toset(var.couchdb_internal_ports_tcp)
   description       = "couchdb internal ports tcp"
+  security_group_id = aws_security_group.dsb_security_group.id
+  type              = "ingress"
+  from_port         = each.value
+  to_port           = each.value
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "rule_postgresql_internal_ports_tcp" {
+  for_each          = toset(var.postgresql_internal_ports_tcp)
+  description       = "postgresql internal ports tcp"
   security_group_id = aws_security_group.dsb_security_group.id
   type              = "ingress"
   from_port         = each.value

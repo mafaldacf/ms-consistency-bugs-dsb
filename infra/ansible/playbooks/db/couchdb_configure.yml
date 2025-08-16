@@ -1,10 +1,10 @@
 ---
-- name: Configure CouchDB cluster with async replication
+- name: COUCHDB_CONFIGURE | Configure CouchDB cluster with async replication
   hosts: manager
   become: yes
   vars:
-    infra_folder_dir: "../.."
-    ansible_folder_dir: ".."
+    infra_folder_dir: "../../.."
+    ansible_folder_dir: "../.."
   
   tasks:
     - name: Ensure cluster directory exists

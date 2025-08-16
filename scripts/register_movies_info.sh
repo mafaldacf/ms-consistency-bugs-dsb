@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+range_start=0
+range_end=999
+
 if [ -z "$1" ]; then
     echo "Usage: $0 <hostname>"
     exit 1
@@ -7,7 +10,7 @@ fi
 
 hostname="$1"
 
-for i in {0..999}; do
+for i in $(seq $range_start $range_end); do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
 
@@ -15,7 +18,7 @@ for i in {0..999}; do
         -d "title=${movie_title}&movie_id=${movie_id}"
 done
 
-for i in {0..999}; do
+for i in $(seq $range_start $range_end); do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
     plot_id=${i}
@@ -25,7 +28,7 @@ for i in {0..999}; do
         -d "{\"movie_id\": \"${movie_id}\", \"title\": \"${movie_title}\", \"plot_id\": \"${plot_id}\"}"
 done
 
-for i in {0..999}; do
+for i in $(seq $range_start $range_end); do
     cast_info_id=${i}
     cast_name=thename
     cast_gender=1

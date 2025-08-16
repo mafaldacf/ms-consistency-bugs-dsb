@@ -1,5 +1,5 @@
 ---
-- name: Initialize Docker Swarm on Manager
+- name: DOCKER_SWARM_START | Initialize Docker Swarm on Manager
   hosts: manager
   become: yes
   tasks:
@@ -17,7 +17,7 @@
       set_fact:
         swarm_worker_token: "{{ worker_token.stdout }}"
 
-- name: Join Docker Swarm on Workers
+- name: SWARM_START |Join Docker Swarm on Workers
   hosts: swarm_workers
   become: yes
   tasks:
@@ -31,7 +31,7 @@
       debug:
         var: join_result.stdout
 
-- name: Label nodes in the Swarm
+- name: DOCKER_SWARM_START |Label nodes in the Swarm
   hosts: manager
   become: yes
   vars:

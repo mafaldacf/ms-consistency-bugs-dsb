@@ -1,9 +1,9 @@
 ---
-- name: Deploy CouchDB cluster
+- name: COUCHDB_START | Deploy CouchDB cluster
   hosts: manager
   become: yes
   vars:
-    ansible_folder_dir: ".."
+    ansible_folder_dir: "../.."
 
   tasks:
     - name: Ensure cluster directory exists
@@ -30,7 +30,7 @@
       args:
         chdir: /home/{{ ansible_user }}/couchdb-config
 
-- name: Test Docker Swarm CouchDB cluster
+- name: COUCHDB_START | Test Docker Swarm CouchDB cluster
   hosts: manager
   become: yes
   vars:
@@ -57,7 +57,7 @@
           CouchDB Node 1: {{ couchdb_node_01_ps.stdout }}
           CouchDB Node 2: {{ couchdb_node_02_ps.stdout }}
 
-- name: Clean any sensitive files
+- name: COUCHDB_START | Clean any sensitive files
   hosts: manager
   become: yes
   tasks:

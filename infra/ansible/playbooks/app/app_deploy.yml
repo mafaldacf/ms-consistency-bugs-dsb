@@ -1,10 +1,10 @@
 ---
-- name: Deploy dsb mediamicroservices
+- name: APP_DEPLOY | Deploy dsb mediamicroservices
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    infra_folder_dir: "../.."
-    local_app_folder_dir: "../../../DeathStarBench/mediaMicroservices"
+    infra_folder_dir: "../../.."
+    local_app_folder_dir: "../../../../DeathStarBench/mediaMicroservices"
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
@@ -20,11 +20,11 @@
         dest: "{{ remote_app_folder_dir }}/gen-lua/"
         mode: 0755
 
-- name: Copy .env file to us instance
+- name: APP_DEPLOY | Copy .env file to us instance
   hosts: node_us
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    infra_folder_dir: "../../.."
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
@@ -55,11 +55,11 @@
         create: yes
         state: present
 
-- name: Copy .env file to ap instance
+- name: APP_DEPLOY | Copy .env file to ap instance
   hosts: node_ap
   become: yes
   vars:
-    infra_folder_dir: "../.."
+    infra_folder_dir: "../../.."
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:

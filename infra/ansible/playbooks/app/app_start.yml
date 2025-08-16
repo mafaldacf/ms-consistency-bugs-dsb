@@ -1,17 +1,17 @@
 ---
-- name: Start microservices with docker compose
+- name: APP_START | Start microservices with docker compose
   hosts: dsb_mediamicroservices
   become: yes
   vars:
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
-    local_app_folder_dir: "../../../DeathStarBench/mediaMicroservices"
+    local_app_folder_dir: "../../../../DeathStarBench/mediaMicroservices"
 
   tasks:
-    - name: Copy nginx web server files
-      copy:
-        src: "{{ local_app_folder_dir }}/nginx-web-server/"
-        dest: "{{ remote_app_folder_dir }}/nginx-web-server/"
-        mode: 0755
+    #- name: Copy nginx web server files
+    #  copy:
+    #    src: "{{ local_app_folder_dir }}/nginx-web-server/"
+    #    dest: "{{ remote_app_folder_dir }}/nginx-web-server/"
+    #    mode: 0755
 
     - name: Copy docker compose file
       copy:

@@ -1,9 +1,9 @@
 ---
-- name: Setup manager
+- name: SCYLLADB_START | Setup manager
   hosts: manager
   become: yes
   vars:
-    ansible_folder_dir: ".."
+    ansible_folder_dir: "../.."
   tasks:
     - name: Copy scylla config
       copy:
@@ -21,7 +21,7 @@
       args:
         chdir: /home/{{ ansible_user }}/scylladb-cluster
 
-- name: Test Docker Swarm ScyllaDB cluster
+- name: SCYLLADB_START | Test Docker Swarm ScyllaDB cluster
   hosts: manager
   become: yes
   vars:

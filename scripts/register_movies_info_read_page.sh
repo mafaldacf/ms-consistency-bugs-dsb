@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-range_start=11000
-range_end=11999
+range_start=10000
+range_end=10999
 
 if [ -z "${2-}" ]; then
   echo "Usage: $0 <hostname> <public_ip_ap>"

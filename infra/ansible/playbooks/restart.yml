@@ -1,0 +1,22 @@
+---
+- import_playbook: app/app_stop.yml
+  tags: [stop, app]
+
+- import_playbook: db/swarm_stop.yml
+  tags: [stop, dbs, couchdb, postgresql]
+
+- import_playbook: db/swarm_start.yml
+  tags: [start, dbs, couchdb, postgresql]
+  
+- import_playbook: db/couchdb_start.yml
+  tags: [start, dbs, couchdb]
+- import_playbook: db/couchdb_configure.yml
+  tags: [start, dbs, couchdb]
+
+- import_playbook: db/postgresql_start.yml
+  tags: [start, dbs, postgresql]
+- import_playbook: db/postgresql_configure.yml
+  tags: [start, dbs, postgresql]
+
+- import_playbook: app/app_start.yml
+  tags: [start, app]

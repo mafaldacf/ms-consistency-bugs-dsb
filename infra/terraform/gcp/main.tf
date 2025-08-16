@@ -98,7 +98,7 @@ resource "google_compute_firewall" "allow_scylladb_ports" {
 
 resource "google_compute_instance" "manager" {
   name         = "manager"
-  machine_type = "e2-medium"
+  machine_type = "e2-medium" # 1-2 vCPU (1 shared core), 4GB memory
   zone         = "europe-west1-b"
   boot_disk {
     initialize_params {
@@ -120,7 +120,7 @@ resource "google_compute_instance" "manager" {
 
 resource "google_compute_instance" "node_us" {
   name         = "node-us"
-  machine_type = "e2-medium"
+  machine_type = "e2-standard-2" # 2 vCPU (1 core), 8GB memory
   zone         = "us-central1-a"
   boot_disk {
     initialize_params {
@@ -142,7 +142,7 @@ resource "google_compute_instance" "node_us" {
 
 resource "google_compute_instance" "node_ap" {
   name         = "node-ap"
-  machine_type = "e2-medium"
+  machine_type = "e2-standard-2" # 2 vCPU (1 core), 8GB memory
   zone         = "asia-southeast1-a"
   boot_disk {
     initialize_params {

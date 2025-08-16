@@ -1,0 +1,24 @@
+---
+# Generate timestamp
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: generate run timestamp
+      set_fact:
+        run_ts: "{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}"
+      run_once: true
+      delegate_to: localhost
+      delegate_facts: true
+
+# Run experiment
+- import_playbook: client/client_register_users.yml
+  tags: [write]
+- import_playbook: client/client_register_movies_info.yml
+  tags: [write]
+- import_playbook: client/client_compose_reviews.yml
+  tags: [write]
+
+- import_playbook: client/client_read_movie_info.yml
+  tags: [read]
+- import_playbook: client/client_read_page.yml
+  tags: [read]

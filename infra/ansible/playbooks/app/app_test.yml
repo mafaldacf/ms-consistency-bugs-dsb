@@ -1,5 +1,5 @@
 ---
-- name: test mediamicroservices before experiments
+- name: APP_TEST | Test mediamicroservices before experiments
   hosts: dsb_mediamicroservices
   become: no
   vars:

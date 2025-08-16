@@ -4,11 +4,11 @@
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible) >= 2.18.3
 - [Docker](https://docs.docker.com/engine/install/) >= 28.0.0
 - [Docker Compose](https://docs.docker.com/compose/install/) >= 2.33.1
-- [GCP account](console.cloud.google.com) OR [AWS account](console.aws.amazon.com)
+- [GCP account (recommended)](console.cloud.google.com) OR [AWS account](console.aws.amazon.com)
 
-# Prepare Environment
+# Set Up Cloud Credentials
 
-## Option 1: GCP
+## Option 1 (Recommended): GCP
 
 Generate a new service account key in the [GCP Console](http://console.cloud.google.com/iam-admin/serviceaccounts), if you don't already have one, and save it into `infra/providers/gcp/credentials.json`.
 
@@ -34,7 +34,7 @@ Copy `infra/providers/aws/.env.template` into a new `infra/env/ap.env`, add your
 
 # Deploy Infrastructure
 
-## Option 1: GCP
+## Option 1 (Recommended): GCP
 
 Deploy Compute Engine machines:
 
@@ -54,77 +54,36 @@ terraform init
 terraform apply
 ```
 
-# Configure Infrastructure
-
-Provision machines and initialize docker swarm:
+# Provision and Configure Cluster
 
 ```zsh
 cd infra/ansible
-ansible-playbook playbooks/provision.yml
-ansible-playbook playbooks/docker_swarm_start.yml
-```
-
-Deploy and initialize databases:
-
-```zsh
-# CouchDB
-ansible-playbook playbooks/couchdb_start.yml
-ansible-playbook playbooks/couchdb_configure.yml
-ansible-playbook playbooks/couchdb_test.yml
-
-# PostgreSQL
-ansible-playbook playbooks/postgresql_start.yml
-ansible-playbook playbooks/postgresql_configure.yml
-ansible-playbook playbooks/postgresql_test.yml
-
-# ScyllaDB
-ansible-playbook playbooks/scylladb_start.yml
-ansible-playbook playbooks/scylladb_test.yml
-```
-
-Deploy and initialize app:
-
-```zsh
-ansible-playbook playbooks/app_deploy.yml
-ansible-playbook playbooks/app_start.yml
-ansible-playbook playbooks/app_test.yml
-ansible-playbook playbooks/client_register_users.yml
+ansible-playbook playbooks/deploy.yml
 ```
 
 # Run Experiments
 
-Experiment 1:
 ```zsh
-cd infra/ansible
-ansible-playbook playbooks/client_register_movies_info.yml
-ansible-playbook playbooks/client_compose_reviews.yml
-ansible-playbook playbooks/client_read_movie_info.yml
-ansible-playbook playbooks/client_read_page.yml
-```
-
-Experiment 2:
-```zsh
-ansible-playbook playbooks/client_register_movies_info_read_page.yml
-```
-
-Others:
-```zsh
-ansible-playbook playbooks/client_register_movie_ids.yml
-ansible-playbook playbooks/client_read_movie_ids.yml
+ansible-playbook playbooks/experiment_1.yml
+ansible-playbook playbooks/experiment_2.yml
+ansible-playbook playbooks/experiment_3.yml
 ```
 
 The playbooks will gather the clients logs and save them into the `logs/` directory.
 
-# Clean or Restart Resources
+# Restart and Clean Resources
 
-(as needed)
+Use as needed:
 
 ```zsh
-cd infra/ansible
-ansible-playbook playbooks/docker_swarm_stop.yml
-ansible-playbook playbooks/app_stop.yml
-ansible-playbook playbooks/clean.yml
+ansible-playbook playbooks/restart.yml
+```
 
+```zsh
+ansible-playbook playbooks/clean.yml
+```
+
+```zsh
 cd infra/terraform
 terraform destroy
 ```

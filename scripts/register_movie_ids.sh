@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+range_start=5000
+range_end=5999
+
 if [ -z "$1" ]; then
     echo "Usage: $0 <hostname>"
     exit 1
@@ -7,7 +10,7 @@ fi
 
 hostname="$1"
 
-for i in {5000..5999}; do
+for i in $(seq $range_start $range_end); do
     movie_id=movie_id_${i}_${hostname}
     movie_title=title_${i}
 

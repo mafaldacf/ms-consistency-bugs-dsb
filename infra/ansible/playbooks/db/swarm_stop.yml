@@ -1,4 +1,4 @@
-- name: Leave existing swarm on all nodes
+- name: SWARM_STOP | Leave existing swarm on all nodes
   hosts: swarm_nodes
   become: yes
   tasks:

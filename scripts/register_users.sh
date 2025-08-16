@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-for i in {0..999}; do
+range_start=0
+range_end=999
+
+for i in $(seq $range_start $range_end); do
   first_name=first_name_$i
   last_name=last_name_$i
   username=username_$i

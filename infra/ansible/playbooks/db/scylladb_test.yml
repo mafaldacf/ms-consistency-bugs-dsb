@@ -1,5 +1,5 @@
 ---
-- name: Test ScyllaDB connectivity from manager
+- name: SCYLLADB_TEST | Test ScyllaDB connectivity from manager
   hosts: manager
   gather_facts: false
   vars:

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+range_start=0
+range_end=999
+
 if [ -z "$1" ]; then
     echo "Usage: $0 <hostname>"
     exit 1

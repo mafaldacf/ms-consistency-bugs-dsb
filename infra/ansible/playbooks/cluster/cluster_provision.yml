@@ -1,5 +1,5 @@
 ---
-- name: Deploy dsb mediamicroservices
+- name: CLUSTER_PROVISION | Deploy dsb mediamicroservices
   hosts: swarm_nodes
   become: yes
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+range_start=0
+range_end=999
+
 if [ -z "$1" ]; then
     echo "Usage: $0 <hostname>"
     exit 1
 fi
 
-for i in {0..999}; do
+for i in $(seq $range_start $range_end); do
   review_start=0
   review_stop=5
   

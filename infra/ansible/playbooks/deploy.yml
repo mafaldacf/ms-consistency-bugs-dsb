@@ -1,0 +1,27 @@
+---
+- import_playbook: cluster/cluster_provision.yml
+  tags: [provision]
+
+- import_playbook: db/swarm_start.yml
+  tags: [dbs, couchdb, postgresql]
+
+- import_playbook: db/couchdb_start.yml
+  tags: [dbs, couchdb]
+- import_playbook: db/couchdb_configure.yml
+  tags: [dbs, couchdb]
+- import_playbook: db/couchdb_test.yml
+  tags: [dbs, couchdb]
+
+- import_playbook: db/postgresql_start.yml
+  tags: [dbs, postgresql]
+- import_playbook: db/postgresql_configure.yml
+  tags: [dbs, postgresql]
+- import_playbook: db/postgresql_test.yml
+  tags: [dbs, postgresql]
+
+- import_playbook: app/app_deploy.yml
+  tags: [app]
+- import_playbook: app/app_start.yml
+  tags: [app]
+- import_playbook: app/app_test.yml
+  tags: [app, test]

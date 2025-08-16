@@ -1,5 +1,5 @@
 ---
-- name: Test PostgreSQL connectivity from manager
+- name: POSTGRESQL_TEST | Test PostgreSQL connectivity from manager
   hosts: manager
   gather_facts: false
   vars:

@@ -1,8 +1,8 @@
-- name: Prepare clients
+- name: CLIENT_READ_MOVIE_INFO | Prepare clients
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    base_folder_dir: "../../.."
+    base_folder_dir: "../../../.."
 
   tasks:
     - name: Copy read_movie_info.sh file
@@ -16,11 +16,12 @@
         path: /home/{{ ansible_user }}/read_movie_info.log
         state: absent
 
-- name: Run clients
+- name: CLIENT_READ_MOVIE_INFO | Run clients
   hosts: dsb_mediamicroservices
   become: yes
   vars:
-    base_folder_dir: "../../.."
+    base_folder_dir: "../../../.."
+    timestamp: "{{ hostvars['localhost'].run_ts | default(lookup('pipe','date +%Y%m%d%H%M%S')) }}"
 
   tasks:
     - name: Run read_movie_info.sh
@@ -32,5 +33,5 @@
     - name: Fetch read_movie_info.log
       fetch:
         src: /home/{{ ansible_user }}/read_movie_info.log
-        dest: "{{ base_folder_dir }}/logs/read_movie_info_{{ inventory_hostname }}.log"
+        dest: "{{ base_folder_dir }}/logs/{{ timestamp }}_exp1_read_movie_info_{{ inventory_hostname }}.log"
         flat: yes

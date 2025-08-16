@@ -1,12 +1,12 @@
 ---
-- name: Stop microservices with docker compose
+- name: CLUSTER_CLEAN | Clean microservices with docker system prune
   hosts: dsb_mediamicroservices
   become: yes
   vars:
     remote_app_folder_dir: "/home/{{ ansible_user }}/dsb-mediamicroservices"
 
   tasks:
-    - name: Run docker compose down
-      shell: docker-compose down
+    - name: Run docker system prune
+      shell: docker system prune -a --volumes -f
       args:
         chdir: "{{ remote_app_folder_dir }}"
